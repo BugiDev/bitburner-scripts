@@ -13,7 +13,8 @@ export async function main(ns) {
  * @param silent
  */
 export async function crackServer(ns, serverName, silent = false) {
-    printHeader(ns, `Cracking server: ${serverName} ...`, silent);
+    printSeparator(ns, silent);
+    tPrint(ns, `Cracking server: ${serverName} ...`, silent);
     if (ns.hasRootAccess(serverName)) {
         tPrint(ns, 'Already has root access.', silent);
         printSeparator(ns, silent);
