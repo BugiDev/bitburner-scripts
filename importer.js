@@ -1,5 +1,5 @@
 
-const IMPORT_CONFIG = {
+export const IMPORT_CONFIG = {
     baseUrl: 'https://raw.githubusercontent.com/BugiDev/bitburner-scripts/main/',
     localScriptsFolderName: 'scripts',
 }

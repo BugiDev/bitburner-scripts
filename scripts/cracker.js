@@ -1,5 +1,5 @@
 // Script used to crack servers
-import {printSeparator, printHeader, tPrint} from './util';
+import {printSeparator, printHeader, tPrint} from '/scripts/util';
 
 export async function main(ns) {
     const serverName = ns.args[0];
@@ -22,7 +22,7 @@ export async function crackServer(ns, serverName, silent = false) {
 
     if (
         ns.getServerRequiredHackingLevel(serverName) > ns.getHackingLevel() ||
-        ns.getServerNumPortsRequired(server) > getCrackablePortsNumber(ns)
+        ns.getServerNumPortsRequired(serverName) > getCrackablePortsNumber(ns)
     ) {
         tPrint(ns, `Server can't be cracked: ${serverName}`, silent);
         printSeparator(ns, silent);
