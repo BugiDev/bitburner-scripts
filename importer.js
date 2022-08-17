@@ -5,7 +5,9 @@ const IMPORT_CONFIG = {
 }
 
 const IMPORT_FILES = [
-  'cracker.js'
+    'util.js',
+    'cracker.js',
+    'malware.js'
 ];
 
 function getRemoteFileURL(fileName){
@@ -18,14 +20,14 @@ function getLocalFilePath(fileName) {
 
 /** @param {NS} ns **/
 export async function main (ns) {
-    ns.tprint('='.repeat(20));
+    ns.tprint('='.repeat(50));
     ns.tprint('IMPORTING BITBURNER AUTOMATION SCRIPTS...')
-    ns.tprint('='.repeat(20));
+    ns.tprint('='.repeat(50));
 
     for (let file of IMPORT_FILES) {
-        await importFile(file);
+        await importFile(ns, file);
     }
-    ns.tprint('='.repeat(20));
+    ns.tprint('='.repeat(50));
 }
 
 async function importFile(ns, fileName) {
