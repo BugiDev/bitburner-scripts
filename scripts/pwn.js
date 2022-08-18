@@ -33,7 +33,6 @@ export async function pwnAllServers(ns, startServer, targetServer, func, silent 
  * @param silent
  */
 export async function pwnServer(ns, serverName, silent = false) {
-    printSeparator(ns, silent);
     tPrint(ns, `Pwning server: ${serverName}`, silent);
     if (!await crackServer(ns, serverName, silent)) {
         return false;
