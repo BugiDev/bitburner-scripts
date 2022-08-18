@@ -6,7 +6,7 @@ import { CONFIG } from '/scripts/config';
 export async function main(ns) {
     const silent = ns.args[0] || false;
     printHeader(ns, 'Pwning all servers...', silent);
-    await pwnAllServers(ns, 'home', 'home', pwnServer, silent);
+    await pwnAllServers(ns, 'home', 'home', null, silent);
 }
 
 /**
