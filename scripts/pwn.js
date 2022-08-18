@@ -9,20 +9,19 @@ export async function main(ns) {
     await pwnAllServers(ns, 'home', 'home', pwnServer, silent);
 }
 
-
 /**
  * @param {NS} ns
  * @param startServer
  * @param targetServer
- * @param func
+ * @param malwareForServer
  * @param silent
  */
-export async function pwnAllServers(ns, startServer, targetServer, func, silent = false) {
+export async function pwnAllServers(ns, startServer, targetServer, malwareForServer = null, silent = false) {
     const servers = ns.scan(targetServer, true).filter((server) => server !== startServer);
     for (const serverName of servers) {
-        const success = await func.call(this, ns, serverName, serverName, silent);
+        const success = await pwnServer(ns, serverName, malwareForServer || serverName, silent);
         if (success) {
-            await pwnAllServers(ns, targetServer, serverName, func, silent);
+            await pwnAllServers(ns, targetServer, serverName, malwareForServer, silent);
         }
     }
 }

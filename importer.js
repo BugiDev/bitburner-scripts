@@ -12,7 +12,8 @@ const IMPORT_FILES = [
     'config.js',
     'pwn.js',
     'remote-pwn.js',
-    'auto-hacknet.js'
+    'auto-hacknet.js',
+    'target-pwn-all.js'
 ];
 
 function getRemoteFileURL(fileName){
