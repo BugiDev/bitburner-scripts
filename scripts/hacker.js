@@ -14,11 +14,12 @@ export async function installMalwareOnServer(ns, serverName, silent = false) {
 
 /**
  * @param {NS} ns
- * @param serverName
+ * @param hostServerName
+ * @param targetServerName
  * @param threadCount
  * @param silent
  */
-export async function executeMalware(ns, serverName, threadCount = 1, silent = false) {
-    await ns.exec(CONFIG.malwareFile, serverName, threadCount, serverName, threadCount)
-    tPrint(ns, `Started ${threadCount} processes on: ${serverName}`, silent)
+export async function executeMalware(ns, hostServerName, targetServerName, threadCount = 1, silent = false) {
+    await ns.exec(CONFIG.malwareFile, hostServerName, threadCount, targetServerName, threadCount)
+    tPrint(ns, `Started ${threadCount} processes on: ${targetServerName}`, silent)
 }

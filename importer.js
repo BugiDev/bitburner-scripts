@@ -10,7 +10,8 @@ const IMPORT_FILES = [
     'hacker.js',
     'malware.js',
     'config.js',
-    'pwn.js'
+    'pwn.js',
+    'remote-pwn.js'
 ];
 
 function getRemoteFileURL(fileName){
