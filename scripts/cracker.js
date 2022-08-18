@@ -33,7 +33,7 @@ export async function crackServer(ns, serverName, silent = false) {
     }
 
     ns.nuke(serverName);
-    tPrint(ns, `New Server Cracked: ${serverName}!`, silent);
+    tPrint(ns, `New Server Cracked: ${serverName}!`, false);
     return true;
 }
 
