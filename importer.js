@@ -7,7 +7,10 @@ export const IMPORT_CONFIG = {
 const IMPORT_FILES = [
     'util.js',
     'cracker.js',
-    'malware.js'
+    'hacker.js',
+    'malware.js',
+    'config.js',
+    'pwn.js'
 ];
 
 function getRemoteFileURL(fileName){
