@@ -45,6 +45,11 @@ export async function pwnServer(ns, hostServerName, targetServerName, silent = f
     const scriptRam = ns.getScriptRam(CONFIG.malwareFile);
     const serverRam = ns.getServerMaxRam(hostServerName);
     const threadCount = Math.floor(serverRam / scriptRam);
+    if (serverRam - scriptRam < 0) {
+        tPrint(ns, `No enough RAM on: ${hostServerName}`, silent)
+        printSeparator(ns, silent);
+        return false;
+    }
     await executeMalware(ns, hostServerName, targetServerName, threadCount, silent);
 
     printSeparator(ns, silent);
