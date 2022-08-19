@@ -1,6 +1,8 @@
 import {tPrint} from '/scripts/util';
 import { CONFIG } from '/scripts/config';
 
+const DEFAULT_MYSERVER_LEVEL = 2;
+
 /** @param {NS} ns */
 export async function main(ns) {
     const silent = ns.args[0] || false;
@@ -58,7 +60,7 @@ function getNextServerLevel(ns, silent = false) {
             const serverLevel = Math.log(serverMaxRam) / Math.log(2);
             tPrint(ns, `Max RAM for server: ${server} is: ${serverMaxRam} with level: ${serverLevel}`, silent);
             return serverLevel >= previousLevel ? serverLevel : previousLevel;
-        }, 1)
+        }, DEFAULT_MYSERVER_LEVEL)
 
         if (purchasedServers.length + 1 >= purchaseServerLimit) {
             const firstServerMaxRam = ns.getServerMaxRam(purchasedServers[0]);
@@ -72,7 +74,7 @@ function getNextServerLevel(ns, silent = false) {
             return maxServerLevel;
         }
     }
-    return 1;
+    return DEFAULT_MYSERVER_LEVEL;
 }
 
 function getNextServerCost(ns, nextServerLevel) {
