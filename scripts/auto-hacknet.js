@@ -3,13 +3,14 @@ import {tPrint} from '/scripts/util';
 /** @param {NS} ns */
 export async function main(ns) {
     const silent = ns.args[0] || false;
+    const timer = ns.args[1] || 5000;
     const currentNodeCount = ns.hacknet.numNodes();
 
     if ( currentNodeCount < 1) {
         ns.hacknet.purchaseNode();
     } else {
         while(true) {
-            await ns.sleep(10000);
+            await ns.sleep(timer);
             autoUpgradeHacknet(ns, silent)
         }
     }

@@ -1,3 +1,4 @@
 export const CONFIG = {
-  malwareFile: '/scripts/malware.js'
+  malwareFile: '/scripts/malware.js',
+  myServerPrefix: 'bugi-server'
 };
