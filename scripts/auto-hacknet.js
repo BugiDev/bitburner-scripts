@@ -2,8 +2,8 @@ import {tPrint} from '/scripts/util';
 
 /** @param {NS} ns */
 export async function main(ns) {
-    const silent = ns.args[0] || false;
-    const timer = ns.args[1] || 5000;
+    const timer = ns.args[0] || 5000;
+    const silent = ns.args[1] || false;
     const currentNodeCount = ns.hacknet.numNodes();
 
     if ( currentNodeCount < 1) {
