@@ -9,7 +9,7 @@ export async function main(ns) {
     const silent = ns.args[1] || false;
     while(true) {
         await ns.sleep(timer);
-        autoPurchaseServer(ns, silent);
+        await autoPurchaseServer(ns, silent);
     }
 }
 
@@ -17,7 +17,7 @@ export async function main(ns) {
  * @param {NS} ns
  * @param silent
  */
-function autoPurchaseServer(ns, silent = false) {
+async function autoPurchaseServer(ns, silent = false) {
     const purchasedServers = ns.getPurchasedServers();
     const purchaseServerLimit = ns.getPurchasedServerLimit();
 
@@ -36,6 +36,7 @@ function autoPurchaseServer(ns, silent = false) {
 
     if (currentMoney > nextServerCost) {
         if (purchasedServers.length + 1 >= purchaseServerLimit) {
+            await ns.killall(purchasedServers[0]);
             ns.deleteServer(purchasedServers[0]);
         }
         const purchasedServer = ns.purchaseServer(CONFIG.myServerPrefix, Math.pow(2, nextServerLevel));
