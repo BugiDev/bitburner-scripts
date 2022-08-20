@@ -19,11 +19,11 @@ export async function main(ns) {
     tPrint(ns, `Server current security lvl: ${serverCurrentSecLevel} `);
     printSeparator(ns);
 
-    const serverMaxRAM = ns.nFormat(ns.getServerMaxRam(serverName), '0.0 b');
-    const serverUsedRAM = ns.nFormat(ns.getServerUsedRam(serverName), '0.0 b');
+    const serverMaxRAM = ns.getServerMaxRam(serverName);
+    const serverUsedRAM = ns.getServerUsedRam(serverName);
 
-    tPrint(ns, `Server MAX RAM: ${serverMaxRAM}`);
-    tPrint(ns, `Server used RAM: ${serverUsedRAM} `);
+    tPrint(ns, `Server MAX RAM: ${serverMaxRAM} GB`);
+    tPrint(ns, `Server used RAM: ${serverUsedRAM} GB`);
     printSeparator(ns);
 
     const growTime = ns.tFormat(ns.getGrowTime(serverName));
