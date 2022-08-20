@@ -35,7 +35,7 @@ async function autoPurchaseServer(ns, silent = false) {
     tPrint(ns, `Next server costs: ${nextServerCost}`, silent);
 
     if (currentMoney > nextServerCost) {
-        if (purchasedServers.length + 1 >= purchaseServerLimit) {
+        if (purchasedServers.length >= purchaseServerLimit) {
             await ns.killall(purchasedServers[0]);
             ns.deleteServer(purchasedServers[0]);
         }
