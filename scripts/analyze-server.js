@@ -19,16 +19,16 @@ export async function main(ns) {
     tPrint(ns, `Server current security lvl: ${serverCurrentSecLevel} `);
     printSeparator(ns);
 
-    const serverMaxRAM = ns.getServerMaxRam(serverName);
-    const serverUsedRAM = ns.getServerUsedRam(serverName);
+    const serverMaxRAM = ns.nFormat(ns.getServerMaxRam(serverName), '0.0 b');
+    const serverUsedRAM = ns.nFormat(ns.getServerUsedRam(serverName), '0.0 b');
 
     tPrint(ns, `Server MAX RAM: ${serverMaxRAM}`);
     tPrint(ns, `Server used RAM: ${serverUsedRAM} `);
     printSeparator(ns);
 
-    const growTime = ns.getGrowTime(serverName);
-    const hackTime = ns.getHackTime(serverName);
-    const weakenTime = ns.getWeakenTime(serverName);
+    const growTime = ns.tFormat(ns.getGrowTime(serverName));
+    const hackTime = ns.tFormat(ns.getHackTime(serverName));
+    const weakenTime = ns.tFormat(ns.getWeakenTime(serverName));
 
     tPrint(ns, `Server growth time: ${growTime}`);
     tPrint(ns, `Server hack time: ${hackTime}`);
@@ -37,8 +37,8 @@ export async function main(ns) {
 
     const serverGrowth = ns.getServerGrowth(serverName);
 
-    const serverMaxMoney = ns.getServerMaxMoney(serverName);
-    const serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
+    const serverMaxMoney = ns.nFormat(ns.getServerMaxMoney(serverName), '($ 0.00 a)');
+    const serverCurrentMoney = ns.nFormat(ns.getServerMoneyAvailable(serverName), '($ 0.00 a)');
 
     tPrint(ns, `Server growth rate: ${serverGrowth}`);
     tPrint(ns, `Server MAX money: ${serverMaxMoney}`);
