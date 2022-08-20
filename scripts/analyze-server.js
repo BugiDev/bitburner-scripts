@@ -44,4 +44,8 @@ export async function main(ns) {
     tPrint(ns, `Server MAX money: ${serverMaxMoney}`);
     tPrint(ns, `Server current money: ${serverCurrentMoney} `);
     printSeparator(ns);
+
+    const hackChance = ns.nFormat(ns.hackAnalyzeChance(serverName), '0 %');
+    tPrint(ns, `Server hack chance: ${hackChance} `);
+    printSeparator(ns);
 }
