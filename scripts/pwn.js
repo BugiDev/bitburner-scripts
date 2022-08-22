@@ -49,7 +49,7 @@ export async function pwnServer(ns, hostServerName, targetServerName, silent = f
     if (serverRam - scriptRam < 0) {
         tPrint(ns, `No enough RAM on: ${hostServerName}`, silent)
         printSeparator(ns, silent);
-        return false;
+        return true;
     }
     await executeMalware(ns, hostServerName, targetServerName, threadCount, silent);
 
