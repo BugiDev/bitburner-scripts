@@ -19,9 +19,11 @@ export async function main(ns) {
 export async function pwnAllServers(ns, startServer, targetServer, malwareForServer = null, silent = false) {
     const servers = ns.scan(targetServer, true).filter((server) => server !== startServer);
     for (const serverName of servers) {
-        const success = await pwnServer(ns, serverName, malwareForServer || serverName, silent);
-        if (success) {
-            await pwnAllServers(ns, targetServer, serverName, malwareForServer, silent);
+        if (!serverName.includes(CONFIG.myServerPrefix)) {
+            const success = await pwnServer(ns, serverName, malwareForServer || serverName, silent);
+            if (success) {
+                await pwnAllServers(ns, targetServer, serverName, malwareForServer, silent);
+            }
         }
     }
 }
