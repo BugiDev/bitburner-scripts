@@ -1,11 +1,11 @@
 import {printSeparator, tPrint} from "/scripts/util";
-import {CONFIG} from "../config";
+import {CONFIG} from "/scripts/config";
 
 /** @param {NS} ns */
 export async function main(ns) {
     const serverName = ns.args[0];
     const silent = ns.args[1] || false
-    prepareServer(ns, serverName, silent);
+    await prepareServer(ns, serverName, silent);
 }
 
 function getNetworkThreadCount(ns, startServer, targetServer, maxThreadCount) {
@@ -31,9 +31,9 @@ async function prepareServer(ns, targetServer, silent = false) {
         return;
     }
 
-    const growthAnalyzeSecurity = ns.growthAnalyzeSecurity(1);
+    const growthAnalyzeSecurity = await ns.growthAnalyzeSecurity(1);
     // const hackAnalyzeSecurity = ns.hackAnalyzeSecurity(1);
-    const weakenAnalyze = ns.weakenAnalyze(1);
+    const weakenAnalyze = await ns.weakenAnalyze(1);
 
     const growToWeakenRatio = Math.floor(weakenAnalyze/growthAnalyzeSecurity);
     // const hackToWeakenRatio = Math.floor(weakenAnalyze/hackAnalyzeSecurity);
@@ -81,27 +81,29 @@ async function prepareServer(ns, targetServer, silent = false) {
             }
         }
 
+        await ns.killall(serverName);
+
         if(weakenThreads > 0) {
-            await ns.exec(CONFIG.loopMalwareWeaken, targetServer, weakenThreads);
+            await ns.exec(CONFIG.loopMalwareWeaken, serverName, weakenThreads, targetServer, weakenThreads);
         }
 
         if (growThreads > 0) {
-            await ns.exec(CONFIG.loopMalwareGrow, targetServer, growThreads);
+            await ns.exec(CONFIG.loopMalwareGrow, serverName, growThreads, targetServer, growThreads);
         }
     }
 
-    const serverMaxMoney = ns.getServerMaxMoney(serverName);
-    let serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
+    const serverMaxMoney = await ns.getServerMaxMoney(targetServer);
+    let serverCurrentMoney = await ns.getServerMoneyAvailable(targetServer);
 
-    const serverMinSecLevel = ns.getServerMinSecurityLevel(serverName);
-    let serverCurrentSecLevel = ns.getServerSecurityLevel(serverName);
+    const serverMinSecLevel = await ns.getServerMinSecurityLevel(targetServer);
+    let serverCurrentSecLevel = await ns.getServerSecurityLevel(targetServer);
 
-    const weakenTime = ns.getWeakenTime(serverName);
+    const weakenTime = await ns.getWeakenTime(targetServer);
 
     while((serverCurrentMoney < serverMaxMoney) && (serverCurrentSecLevel > serverMinSecLevel)) {
-        ns.sleep(weakenTime);
-        serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
-        serverCurrentSecLevel = ns.getServerSecurityLevel(serverName);
+        await ns.sleep(weakenTime);
+        serverCurrentMoney = await ns.getServerMoneyAvailable(targetServer);
+        serverCurrentSecLevel = await ns.getServerSecurityLevel(targetServer);
         tPrint(ns, `Money calc: ${ns.nFormat(serverCurrentMoney, '($ 0.00 a)')}/${ns.nFormat(serverMaxMoney, '($ 0.00 a)')}`, silent);
         tPrint(ns, `Security calc: ${serverCurrentSecLevel}/${serverMinSecLevel}`, silent);
         printSeparator(ns, silent);

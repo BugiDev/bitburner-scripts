@@ -4,6 +4,6 @@ export async function main(ns) {
     const threadCount = ns.args[1] || 1;
     const opts = {thread: threadCount, stock: true};
     while(true) {
-        ns.grow(serverName, opts);
+        await ns.grow(serverName, opts);
     }
 }
