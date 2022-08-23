@@ -9,6 +9,9 @@ import { CONFIG } from '/scripts/config';
 export async function installMalwareOnServer(ns, serverName, silent = false) {
     await ns.killall(serverName);
     await ns.scp(CONFIG.malwareFile, serverName);
+    await ns.scp(CONFIG.loopMalwareWeaken, serverName);
+    await ns.scp(CONFIG.loopMalwareGrow, serverName);
+    await ns.scp(CONFIG.loopMalwareHack, serverName);
     tPrint(ns,`Copied malware on: ${serverName}`, silent);
 }
 

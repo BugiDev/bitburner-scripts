@@ -17,6 +17,10 @@ const IMPORT_FILES = [
     'target-pwn-myservers.js',
     'auto-myserver.js',
     'analyze-server.js',
+    'loop/hack.js',
+    'loop/grow.js',
+    'loop/weaken.js',
+    'loop/loop-deploy.js',
 ];
 
 function getRemoteFileURL(fileName){
