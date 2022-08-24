@@ -12,3 +12,11 @@ export function printHeader(ns, headerText, silent = false) {
 export function tPrint(ns, text, silent = false) {
     !silent && ns.tprint(text);
 }
+
+export function log(ns, debug = false) {
+    if (debug) {
+        ns.tprint(text);
+    } else {
+        ns.print(text);
+    }
+}

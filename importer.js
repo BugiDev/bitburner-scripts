@@ -17,6 +17,7 @@ const IMPORT_FILES = [
     'target-pwn-myservers.js',
     'auto-myserver.js',
     'analyze-server.js',
+    'monitor.js',
     'loop/hack.js',
     'loop/grow.js',
     'loop/weaken.js',
