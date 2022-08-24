@@ -6,10 +6,10 @@ import {log} from "/scripts/util";
 export async function main(ns, debug = false) {
     const serverName = ns.args[0];
 
-    const serverMaxMoney = await ns.getServerMaxMoney(targetServer);
+    const serverMaxMoney = await ns.getServerMaxMoney(serverName);
     const serverCurrentMoney = await ns.getServerMoneyAvailable(serverName);
 
-    const serverMinSecLevel = await ns.getServerMinSecurityLevel(targetServer);
+    const serverMinSecLevel = await ns.getServerMinSecurityLevel(serverName);
     const serverCurrentSecLevel = await ns.getServerSecurityLevel(serverName);
 
     ns.tail();
