@@ -20,3 +20,12 @@ export function log(ns, text, debug = false) {
         ns.print(text);
     }
 }
+
+export function logSeparator(ns, debug = false) {
+    const text = '='.repeat(50);
+    if (debug) {
+        ns.tprint(text);
+    } else {
+        ns.print(text);
+    }
+}
