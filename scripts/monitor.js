@@ -12,6 +12,8 @@ export async function main(ns, debug = false) {
     const serverMinSecLevel = await ns.getServerMinSecurityLevel(targetServer);
     const serverCurrentSecLevel = await ns.getServerSecurityLevel(serverName);
 
+    ns.tail();
+
     while(true) {
         log(ns, `Money calc: ${ns.nFormat(serverCurrentMoney, '($ 0.00 a)')}/${ns.nFormat(serverMaxMoney, '($ 0.00 a)')}`, debug);
         log(ns, `Security calc: ${serverCurrentSecLevel}/${serverMinSecLevel}`, debug);
