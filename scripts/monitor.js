@@ -18,6 +18,6 @@ export async function main(ns, debug = false) {
         logSeparator(ns, debug);
         log(ns, `Money calc: ${ns.nFormat(serverCurrentMoney, '($ 0.00 a)')}/${ns.nFormat(serverMaxMoney, '($ 0.00 a)')}`, debug);
         log(ns, `Security calc: ${serverCurrentSecLevel}/${serverMinSecLevel}`, debug);
-        await ns.sleep(10000);
+        await ns.sleep(1000);
     }
 }
