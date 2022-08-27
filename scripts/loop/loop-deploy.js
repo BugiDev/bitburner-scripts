@@ -13,7 +13,7 @@ export async function main(ns) {
     await pwnServer(ns, serverName, maxThreadCount, silent);
 }
 
-function getNetworkThreadCount(ns, startServer, targetServer, maxThreadCount) {
+export function getNetworkThreadCount(ns, startServer, targetServer, maxThreadCount) {
     const servers = ns.scan(targetServer, true).filter((server) => server !== startServer);
     for (const serverName of servers) {
         if(ns.hasRootAccess(serverName)) {
@@ -27,7 +27,7 @@ function getNetworkThreadCount(ns, startServer, targetServer, maxThreadCount) {
     }
 }
 
-async function prepareServer(ns, targetServer, maxThreadCount, silent = false) {
+export async function prepareServer(ns, targetServer, maxThreadCount, silent = false) {
     if (maxThreadCount.threadCount < 1) {
         tPrint(ns,'No enough threads to execute malware!');
         return;

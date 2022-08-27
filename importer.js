@@ -1,4 +1,3 @@
-
 export const IMPORT_CONFIG = {
     baseUrl: 'https://raw.githubusercontent.com/BugiDev/bitburner-scripts/main/',
     localScriptsFolderName: 'scripts',
@@ -18,14 +17,18 @@ const IMPORT_FILES = [
     'auto-myserver.js',
     'analyze-server.js',
     'find-server.js',
+    'find-contracts.js',
     'monitor.js',
+    'kill-whole-network.js',
+    'util/thread.js',
     'loop/hack.js',
     'loop/grow.js',
     'loop/weaken.js',
     'loop/loop-deploy.js',
+    'loop/loop-hwgw.js'
 ];
 
-function getRemoteFileURL(fileName){
+function getRemoteFileURL(fileName) {
     return `${IMPORT_CONFIG.baseUrl}/scripts/${fileName}`;
 }
 
@@ -34,7 +37,7 @@ function getLocalFilePath(fileName) {
 }
 
 /** @param {NS} ns **/
-export async function main (ns) {
+export async function main(ns) {
     ns.tprint('='.repeat(50));
     ns.tprint('IMPORTING BITBURNER AUTOMATION SCRIPTS...')
     ns.tprint('='.repeat(50));
