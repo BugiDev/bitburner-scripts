@@ -9,5 +9,5 @@ export async function walkNetwork(ns, startServer, targetServer, callback, debug
 }
 
 export async function walkWholeNetwork(ns, callback, debug = false) {
-    await walkNetwork(ns, 'home', 'home', callback, debug = false);
+    await walkNetwork(ns, 'home', 'home', callback, debug);
 }

@@ -15,7 +15,7 @@ export function hackServer(ns, serverName, debug = false) {
     ) {
         openPorts(ns, serverName);
         ns.nuke(serverName);
-        log(ns, `Hacked new server: ${serverName}`, debug);
+        log(ns, `Hacked new server: ${serverName}`, true);
     }
 }
 
