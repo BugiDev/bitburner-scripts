@@ -1,5 +1,4 @@
-import {walkWholeNetwork} from "/scripts/util/network";
-import {tPrint} from "../util";
+import {log} from "/scripts/util";
 
 /** @param {NS} ns */
 export async function main(ns) {

@@ -11,18 +11,20 @@ const IMPORT_FILES = [
     'config.js',
     'pwn.js',
     'remote-pwn.js',
-    'auto-hacknet.js',
     'target-pwn-all.js',
     'target-pwn-myservers.js',
-    'auto-myserver.js',
     'find-server.js',
     'find-contracts.js',
     'kill-whole-network.js',
+    
+    //AUTO BUY
+    'auto-buy/auto-buy-hacknet.js',
+    'auto-buy/auto-buy-myserver.js',
 
     // UTIL
     'util/thread.js',
     'util/network.js',
-    
+
     // HACK
     'hack/hack-all.js',
     'hack/hack.js',
