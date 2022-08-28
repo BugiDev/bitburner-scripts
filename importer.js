@@ -15,12 +15,27 @@ const IMPORT_FILES = [
     'target-pwn-all.js',
     'target-pwn-myservers.js',
     'auto-myserver.js',
-    'analyze-server.js',
     'find-server.js',
     'find-contracts.js',
-    'monitor.js',
     'kill-whole-network.js',
+
+    // UTIL
     'util/thread.js',
+    'util/network.js',
+    
+    // HACK
+    'hack/hack-all.js',
+    'hack/hack.js',
+
+    // MALWARE
+    'malware/install-malware.js',
+    'malware/install-malware-all.js',
+
+    // ANALYZE
+    'analyze/analyze-server.js',
+    'analyze/monitor.js',
+
+    // LOOP
     'loop/hack.js',
     'loop/grow.js',
     'loop/weaken.js',
