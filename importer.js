@@ -5,14 +5,8 @@ export const IMPORT_CONFIG = {
 
 const IMPORT_FILES = [
     'util.js',
-    'cracker.js',
-    'hacker.js',
-    'malware.js',
     'config.js',
     'pwn.js',
-    'remote-pwn.js',
-    'target-pwn-all.js',
-    'target-pwn-myservers.js',
     'find-server.js',
     'find-contracts.js',
     'kill-whole-network.js',
@@ -30,6 +24,7 @@ const IMPORT_FILES = [
     'hack/hack.js',
 
     // MALWARE
+    'malware/malware.js',
     'malware/install-malware.js',
     'malware/install-malware-all.js',
     'malware/run-malware-for-target.js',
