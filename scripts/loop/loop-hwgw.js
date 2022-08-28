@@ -1,16 +1,80 @@
-import {tPrint} from "/scripts/util.js";
-import {getServerFreeThreadCount} from "/scripts/util/thread.js";
+import {log, logSeparator} from "/scripts/util.js";
+import {
+    getNetworkFreeThreadCount,
+    getServerFreeThreadCount,
+    getNetworkMaxThreadCount,
+    getNetworkFreeServers
+} from "/scripts/util/thread.js";
 import {CONFIG} from '/scripts/config.js';
 
 /** @param {NS} ns */
 export async function main(ns) {
     const serverName = ns.args[0];
-    await maxOutServer(ns, serverName);
-    const HWGWLoopThreadCount = await getHWGWLoopThreadCount(ns, serverName);
+    const debug = ns.args[1] || false;
+    await HWGWLoop(ns, serverName, debug)
+}
+
+export async function HWGWLoop(ns, serverName, debug = false) {
+    const serverMaxMoney = await ns.getServerMaxMoney(serverName);
+    const serverMinSecLevel = await ns.getServerMinSecurityLevel(serverName);
+    await maxOutServer(ns, serverName, debug);
+    const HWGWLoopThreadCount = await getHWGWLoopThreadCount(ns, serverName, debug);
+    log(ns, JSON.stringify(HWGWLoopThreadCount), debug);
+    logSeparator(ns, debug);
+
+    let freeThreads = await getNetworkFreeThreadCount(ns, 'home', 'home');
+    let flatFreeThreads = flattenFreeThreads(freeThreads);
+
+    if (flatFreeThreads.length < HWGWLoopThreadCount.total) {
+        log(ns, `No enough threads to execute loop for server: ${serverName}!`, debug);
+        return;
+    }
+
+    const maxThreads = await getNetworkMaxThreadCount(ns, 'home', 'home');
+    const freeServers = getNetworkFreeServers(ns, 'home', 'home');
+
+    const maxUsedThreads = Math.max(HWGWLoopThreadCount.grow, HWGWLoopThreadCount.hack, HWGWLoopThreadCount.weakGrow, HWGWLoopThreadCount.weakHack);
+    const filteredServers = freeServers.filter((server) => maxThreads[server] >= maxUsedThreads).sort((a, b) => {
+        if (maxThreads[a] < maxThreads[b]) {
+            return -1;
+        }
+        if (maxThreads[a] > maxThreads[b]) {
+            return 1;
+        }
+        // a must be equal to b
+        return 0;
+    });
+
+    const serverToRunMalwareOn = filteredServers[0];
+    log(ns, `Running malware on server: ${serverToRunMalwareOn} to hack: ${serverName}`, debug);
+
+    while (true) {
+        const hackTime = await ns.getHackTime(serverName);
+        ns.exec(CONFIG.loopMalwareHack, serverToRunMalwareOn, HWGWLoopThreadCount.hack, serverName, HWGWLoopThreadCount.hack);
+        await ns.sleep(hackTime + 10);
+        log(ns, `Money after hack: ${ns.nFormat(ns.getServerMoneyAvailable(serverName), '($ 0.00 a)')}/${ns.nFormat(serverMaxMoney, '($ 0.00 a)')}`, debug);
+        log(ns, `Security after hack: ${ns.getServerSecurityLevel(serverName)}/${serverMinSecLevel}`, debug);
+
+        const weakenTime = await ns.getWeakenTime(serverName);
+        ns.exec(CONFIG.loopMalwareWeaken, serverToRunMalwareOn, HWGWLoopThreadCount.weakHack, serverName, HWGWLoopThreadCount.weakHack);
+        await ns.sleep(weakenTime + 10);
+        log(ns, `Security after weaken after hack: ${ns.getServerSecurityLevel(serverName)}/${serverMinSecLevel}`, debug);
+
+        const growTime = await ns.getGrowTime(serverName);
+        ns.exec(CONFIG.loopMalwareGrow, serverToRunMalwareOn, HWGWLoopThreadCount.grow, serverName, HWGWLoopThreadCount.grow);
+        await ns.sleep(growTime + 10);
+        log(ns, `Money after grow: ${ns.nFormat(ns.getServerMoneyAvailable(serverName), '($ 0.00 a)')}/${ns.nFormat(serverMaxMoney, '($ 0.00 a)')}`, debug);
+        log(ns, `Security after grow: ${ns.getServerSecurityLevel(serverName)}/${serverMinSecLevel}`, debug);
+
+        ns.exec(CONFIG.loopMalwareWeaken, serverToRunMalwareOn, HWGWLoopThreadCount.weakGrow, serverName, HWGWLoopThreadCount.weakGrow);
+        await ns.sleep(weakenTime + 10);
+        log(ns, `Security after weaken after grow: ${ns.getServerSecurityLevel(serverName)}/${serverMinSecLevel}`, debug);
+        logSeparator(ns, debug);
+    }
 }
 
 // Server needs to be prepared for this one to work
-async function getHWGWLoopThreadCount(ns, serverName) {
+async function getHWGWLoopThreadCount(ns, serverName, debug = false) {
     const serverMaxMoney = await ns.getServerMaxMoney(serverName);
     const threadsToHackHalf = Math.floor(await ns.hackAnalyzeThreads(serverName, serverMaxMoney / 2)) || 1;
     const hackTime = ns.getHackTime(serverName);
@@ -37,34 +101,46 @@ async function getHWGWLoopThreadCount(ns, serverName) {
     }
 }
 
-async function maxOutServer(ns, serverName) {
+async function maxOutServer(ns, serverName, debug = false) {
     const freeTreadCount = getServerFreeThreadCount(ns, 'home');
 
     if (freeTreadCount < 1) {
-        tPrint(ns, 'No enough threads on home to max out the server!');
+        log(ns, 'No enough threads on home to max out the server!', debug);
         return;
     }
 
     const serverMaxMoney = await ns.getServerMaxMoney(serverName);
     let serverCurrentMoney = await ns.getServerMoneyAvailable(serverName);
-    let growPID = 0;
 
-    while ((serverCurrentMoney < serverMaxMoney)) {
-        growPID = await ns.run(CONFIG.loopMalwareGrow, freeTreadCount, serverName, freeTreadCount);
+    while (serverCurrentMoney < serverMaxMoney) {
+        log(ns, `Money calc: ${ns.nFormat(serverCurrentMoney, '($ 0.00 a)')}/${ns.nFormat(serverMaxMoney, '($ 0.00 a)')}`, debug);
+        ns.run(CONFIG.loopMalwareGrow, freeTreadCount, serverName, freeTreadCount);
         const growTime = await ns.getGrowTime(serverName);
         await ns.sleep(growTime + 10);
+        serverCurrentMoney = await ns.getServerMoneyAvailable(serverName);
     }
-    await ns.kill(growPID);
 
     const serverMinSecLevel = await ns.getServerMinSecurityLevel(serverName);
-    const serverCurrentSecLevel = await ns.getServerSecurityLevel(serverName);
-    let weakenPID = 0;
+    let serverCurrentSecLevel = await ns.getServerSecurityLevel(serverName);
 
-    while ((serverCurrentMoney < serverMaxMoney)) {
-        weakenPID = await ns.run(CONFIG.loopMalwareWeaken, freeTreadCount, serverName, freeTreadCount);
+    while (serverCurrentSecLevel > serverMinSecLevel) {
+        log(ns, `Security calc: ${serverCurrentSecLevel}/${serverMinSecLevel}`, debug);
+        ns.run(CONFIG.loopMalwareWeaken, freeTreadCount, serverName, freeTreadCount);
         const weakenTime = await ns.getWeakenTime(serverName);
         await ns.sleep(weakenTime + 10);
+        serverCurrentSecLevel = await ns.getServerSecurityLevel(serverName);
     }
-    await ns.kill(weakenPID);
-    tPrint(ns, `Maxed out server: ${serverName}`);
+    log(ns, `Maxed out server: ${serverName}`, debug);
+    logSeparator(ns, debug);
+}
+
+function flattenFreeThreads(freeThreads) {
+    const freeTreadsArray = [];
+    for (const serverName in freeThreads) {
+        if (freeThreads[serverName] > 0) {
+            freeTreadsArray.push(...Array(freeThreads[serverName]).fill(serverName));
+        }
+    }
+
+    return freeTreadsArray;
 }

@@ -1,6 +1,5 @@
-
 export function getServerMaxThreadCount(ns, serverName) {
-    if(ns.hasRootAccess(serverName)) {
+    if (ns.hasRootAccess(serverName)) {
         const scriptRam = 1.75;
         const serverMaxRam = ns.getServerMaxRam(serverName);
         return Math.floor(serverMaxRam / scriptRam);
@@ -9,7 +8,7 @@ export function getServerMaxThreadCount(ns, serverName) {
 }
 
 export function getServerFreeThreadCount(ns, serverName) {
-    if(ns.hasRootAccess(serverName)) {
+    if (ns.hasRootAccess(serverName)) {
         const scriptRam = 1.75;
         const serverMaxRam = ns.getServerMaxRam(serverName);
         const serverUsedRam = ns.getServerUsedRam(serverName);
@@ -41,4 +40,23 @@ export function getNetworkFreeThreadCount(ns, startServer, targetServer) {
 
 export function getNetworkMaxThreadCount(ns, startServer, targetServer) {
     return getNetworkThreadCount(ns, startServer, targetServer, getServerMaxThreadCount);
+}
+
+export function getNetworkFreeServers(ns, startServer, targetServer) {
+    const servers = ns.scan(targetServer, true).filter((server) => server !== startServer);
+    if (servers.length > 0) {
+        return servers.reduce((freeServers, serverName) => {
+            const reducedValue = [
+                ...freeServers,
+                ...getNetworkFreeServers(ns, targetServer, serverName),
+            ];
+            const ps = ns.ps(serverName);
+            if (ps.length === 0) {
+                reducedValue.push(serverName);
+            }
+            return reducedValue;
+        }, []);
+    }
+
+    return [];
 }
