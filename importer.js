@@ -16,7 +16,7 @@ const IMPORT_FILES = [
     'find-server.js',
     'find-contracts.js',
     'kill-whole-network.js',
-    
+
     //AUTO BUY
     'auto-buy/auto-buy-hacknet.js',
     'auto-buy/auto-buy-myserver.js',
@@ -32,6 +32,7 @@ const IMPORT_FILES = [
     // MALWARE
     'malware/install-malware.js',
     'malware/install-malware-all.js',
+    'malware/run-malware-for-target.js',
 
     // ANALYZE
     'analyze/analyze-server.js',
