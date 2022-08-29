@@ -1,7 +1,7 @@
 import {log, logSeparator} from "/scripts/util";
-import {maxOutServer} from "../util/server";
-import {CONFIG} from "../config";
-import {getNetworkFreeServers, getNetworkMaxThreadCount} from "../util/thread";
+import {maxOutServer} from "/scripts/util/server";
+import {CONFIG} from "/scripts/config";
+import {getNetworkMaxThreadCount, getServerFreeThreadCount} from "/scripts/util/thread";
 
 /** @param {NS} ns
  * @param debug
@@ -22,10 +22,10 @@ export async function main(ns) {
     logSeparator(ns, debug);
 
     await maxOutServer(ns, serverName, debug);
-    // const HWGWLoopThreadCount = await getHWGWLoopThreadCount(ns, serverName, debug);
-    // log(ns, `Threads needed for server: ${serverName}`, debug);
-    // log(ns, JSON.stringify(HWGWLoopThreadCount), debug);
-    // logSeparator(ns, debug);
+    const HWGWLoopThreadCount = await getHWGWLoopThreadCount(ns, serverName, debug);
+    log(ns, `Threads needed for server: ${serverName}`, debug);
+    log(ns, JSON.stringify(HWGWLoopThreadCount), debug);
+    logSeparator(ns, debug);
 }
 
 // Server needs to be prepared for this one to work
@@ -33,10 +33,28 @@ async function getHWGWLoopThreadCount(ns, serverName, debug = false) {
     const serverMaxMoney = await ns.getServerMaxMoney(serverName);
     const threadsToHackHalf = Math.floor(await ns.hackAnalyzeThreads(serverName, serverMaxMoney / 2)) || 1;
     const hackTime = ns.getHackTime(serverName);
+    const freeTreadCount = getServerFreeThreadCount(ns, 'home');
 
-    const pid = await ns.run(CONFIG.loopMalwareHack, threadsToHackHalf, serverName, threadsToHackHalf);
-    await ns.sleep(hackTime + 10);
-    await ns.kill(pid);
+    if (freeTreadCount < 1) {
+        log(ns, 'No enough threads on home to calculate hwgw loop of a server!', debug);
+        return;
+    }
+
+    if (freeTreadCount >= threadsToHackHalf) {
+        await ns.run(CONFIG.loopMalwareHack, threadsToHackHalf, serverName, threadsToHackHalf);
+        await ns.sleep(hackTime + 10);
+    } else {
+        let homeThreadsToHack = threadsToHackHalf;
+        while (homeThreadsToHack > 0) {
+            if (homeThreadsToHack - freeTreadCount >= 0) {
+                await ns.run(CONFIG.loopMalwareHack, freeTreadCount, serverName, freeTreadCount);
+            } else {
+                await ns.run(CONFIG.loopMalwareHack, homeThreadsToHack, serverName, homeThreadsToHack);
+            }
+            homeThreadsToHack -= freeTreadCount;
+            await ns.sleep(hackTime + 10);
+        }
+    }
 
     const securityIncreaseForHack = await ns.hackAnalyzeSecurity(threadsToHackHalf, serverName);
     const weakenAnalyze = await ns.weakenAnalyze(1);

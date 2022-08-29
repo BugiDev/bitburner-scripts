@@ -43,7 +43,10 @@ const IMPORT_FILES = [
     'loop/grow.js',
     'loop/weaken.js',
     'loop/loop-deploy.js',
-    'loop/loop-hwgw.js'
+    'loop/loop-hwgw.js',
+
+    // BATCH
+    'batch/batch.js'
 ];
 
 function getRemoteFileURL(fileName) {
