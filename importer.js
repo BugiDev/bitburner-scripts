@@ -21,6 +21,7 @@ const IMPORT_FILES = [
     // UTIL
     'util/thread.js',
     'util/network.js',
+    'util/server.js',
 
     // HACK
     'hack/hack-all.js',
@@ -34,6 +35,7 @@ const IMPORT_FILES = [
 
     // ANALYZE
     'analyze/analyze-server.js',
+    'analyze/analyze-threads.js',
     'analyze/monitor.js',
 
     // LOOP
