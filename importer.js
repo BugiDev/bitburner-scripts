@@ -1,6 +1,6 @@
 export const IMPORT_CONFIG = {
   baseUrl: 'https://raw.githubusercontent.com/BugiDev/bitburner-scripts/main/',
-  localScriptsFolderName: 'dist',
+  localScriptsFolderName: 'scripts',
 };
 
 const IMPORT_FILES = [
@@ -50,7 +50,7 @@ const IMPORT_FILES = [
 ];
 
 function getRemoteFileURL(fileName) {
-  return `${IMPORT_CONFIG.baseUrl}/scripts/${fileName}`;
+  return `${IMPORT_CONFIG.baseUrl}/dist/${fileName}`;
 }
 
 function getLocalFilePath(fileName) {
