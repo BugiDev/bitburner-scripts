@@ -1,0 +1,6 @@
+
+.husky
+dist
+node_modules
+NetscriptDefinitions.d.ts
+updateDefs.js
