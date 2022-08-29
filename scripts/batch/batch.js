@@ -28,24 +28,26 @@ export async function main(ns) {
     logSeparator(ns, debug);
 
     const batchesCount = Math.floor(maxThreadsInNetwork / HWGWBatchConfig.total);
+    log(ns, `Batch count: ${batchesCount}`, debug);
     const batchPromises = [];
-    for (var i = 0; i < batchesCount; i++) {
-        batchPromises.push(executeBatch(ns, HWGWBatchConfig));
+    for (let i = 0; i < batchesCount; i++) {
+        batchPromises.push(executeBatch(ns, HWGWBatchConfig, i * 1000));
     }
 
-    await Promise.all(batchPromises)
+    await Promise.all(batchPromises);
 }
 
-async function executeBatch(ns, HWGWBatchConfig) {
+async function executeBatch(ns, HWGWBatchConfig, delay) {
+    await ns.asleep(delay);
     while (true) {
         await executeRemoteWeak(ns, HWGWBatchConfig.weakHack);
-        await ns.sleep(200);
+        await ns.asleep(200);
         await executeRemoteWeak(ns, HWGWBatchConfig.weakGrow);
-        await ns.sleep(HWGWBatchConfig.weakenGrowTime - 100 - HWGWBatchConfig.growTime);
+        await ns.asleep(HWGWBatchConfig.weakenGrowTime - 100 - HWGWBatchConfig.growTime);
         await executeRemoteGrow(ns, HWGWBatchConfig.grow);
-        await ns.sleep(HWGWBatchConfig.growTime - 200 - HWGWBatchConfig.hackTime);
+        await ns.asleep(HWGWBatchConfig.growTime - 200 - HWGWBatchConfig.hackTime);
         await executeRemoteHack(ns, HWGWBatchConfig.hack);
-        await ns.sleep(HWGWBatchConfig.hackTime + 300);
+        await ns.asleep(HWGWBatchConfig.hackTime + 300);
     }
 }
 
