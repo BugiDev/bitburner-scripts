@@ -1,0 +1,10 @@
+# Ignore artifacts:
+.idea
+.husky
+
+node_modules
+
+dist/
+NetscriptDefinitions.d.ts
+
+updateDefs.js
