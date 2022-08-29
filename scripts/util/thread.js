@@ -34,12 +34,12 @@ function getNetworkThreadCount(ns, startServer, targetServer, callback) {
     return {};
 }
 
-export function getNetworkFreeThreadCount(ns, startServer, targetServer) {
-    return getNetworkThreadCount(ns, startServer, targetServer, getServerFreeThreadCount);
+export function getNetworkFreeThreadCount(ns) {
+    return getNetworkThreadCount(ns, 'home', 'home', getServerFreeThreadCount);
 }
 
-export function getNetworkMaxThreadCount(ns, startServer, targetServer) {
-    return getNetworkThreadCount(ns, startServer, targetServer, getServerMaxThreadCount);
+export function getNetworkMaxThreadCount(ns) {
+    return getNetworkThreadCount(ns, 'home', 'home', getServerMaxThreadCount);
 }
 
 export function getNetworkFreeServers(ns, startServer, targetServer) {
@@ -50,9 +50,11 @@ export function getNetworkFreeServers(ns, startServer, targetServer) {
                 ...freeServers,
                 ...getNetworkFreeServers(ns, targetServer, serverName),
             ];
-            const ps = ns.ps(serverName);
-            if (ps.length === 0) {
-                reducedValue.push(serverName);
+            if (ns.hasRootAccess(serverName)) {
+                const ps = ns.ps(serverName);
+                if (ps.length === 0) {
+                    reducedValue.push(serverName);
+                }
             }
             return reducedValue;
         }, []);

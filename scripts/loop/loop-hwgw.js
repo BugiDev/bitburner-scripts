@@ -1,6 +1,5 @@
 import {log, logSeparator} from "/scripts/util.js";
 import {
-    getNetworkFreeThreadCount,
     getServerFreeThreadCount,
     getNetworkMaxThreadCount,
     getNetworkFreeServers
@@ -22,16 +21,13 @@ export async function HWGWLoop(ns, serverName, debug = false) {
     log(ns, JSON.stringify(HWGWLoopThreadCount), debug);
     logSeparator(ns, debug);
 
-    let freeThreads = await getNetworkFreeThreadCount(ns, 'home', 'home');
-    let flatFreeThreads = flattenFreeThreads(freeThreads);
+    const maxThreads = await getNetworkMaxThreadCount(ns);
+    const freeServers = getNetworkFreeServers(ns, 'home', 'home');
 
-    if (flatFreeThreads.length < HWGWLoopThreadCount.total) {
-        log(ns, `No enough threads to execute loop for server: ${serverName}!`, debug);
+    if (freeServers.length === 0) {
+        log(ns, `No enough free servers to execute loop for server: ${serverName}!`, debug);
         return;
     }
-
-    const maxThreads = await getNetworkMaxThreadCount(ns, 'home', 'home');
-    const freeServers = getNetworkFreeServers(ns, 'home', 'home');
 
     const maxUsedThreads = Math.max(HWGWLoopThreadCount.grow, HWGWLoopThreadCount.hack, HWGWLoopThreadCount.weakGrow, HWGWLoopThreadCount.weakHack);
     const filteredServers = freeServers.filter((server) => maxThreads[server] >= maxUsedThreads).sort((a, b) => {
@@ -44,6 +40,11 @@ export async function HWGWLoop(ns, serverName, debug = false) {
         // a must be equal to b
         return 0;
     });
+
+    if (filteredServers.length === 0) {
+        log(ns, `No free servers with enough threads to execute loop for server: ${serverName}!`, debug);
+        return;
+    }
 
     const serverToRunMalwareOn = filteredServers[0];
     log(ns, `Running malware on server: ${serverToRunMalwareOn} to hack: ${serverName}`, debug);

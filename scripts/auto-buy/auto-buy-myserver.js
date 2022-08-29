@@ -1,5 +1,6 @@
 import {tPrint} from '/scripts/util';
-import { CONFIG } from '/scripts/config';
+import {CONFIG} from '/scripts/config';
+import {installMalware} from "/scripts/malware/install-malware";
 
 const DEFAULT_MYSERVER_LEVEL = 2;
 
@@ -7,7 +8,7 @@ const DEFAULT_MYSERVER_LEVEL = 2;
 export async function main(ns) {
     const timer = ns.args[0] || 5000;
     const silent = ns.args[1] || false;
-    while(true) {
+    while (true) {
         await ns.sleep(timer);
         await autoPurchaseServer(ns, silent);
     }
@@ -24,6 +25,7 @@ async function autoPurchaseServer(ns, silent = false) {
     if (purchasedServers.length === 0) {
         const purchasedServer = ns.purchaseServer(CONFIG.myServerPrefix, Math.pow(2, 1));
         tPrint(ns, `Purchased server: ${purchasedServer}`, silent);
+        await installMalware(ns, purchasedServer, !silent);
         return;
     }
 
@@ -41,6 +43,7 @@ async function autoPurchaseServer(ns, silent = false) {
         }
         const purchasedServer = ns.purchaseServer(CONFIG.myServerPrefix, Math.pow(2, nextServerLevel));
         tPrint(ns, `Purchased server: ${purchasedServer}`, silent);
+        await installMalware(ns, purchasedServer, !silent);
     } else {
         tPrint(ns, `No enough money!`, silent);
     }

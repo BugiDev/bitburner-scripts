@@ -7,9 +7,12 @@ const IMPORT_FILES = [
     'util.js',
     'config.js',
     'pwn.js',
-    'find-server.js',
-    'find-contracts.js',
     'kill-whole-network.js',
+
+    //FIND
+    'find/find-server.js',
+    'find/find-server-backdoor.js',
+    'find/find-contracts.js',
 
     //AUTO BUY
     'auto-buy/auto-buy-hacknet.js',

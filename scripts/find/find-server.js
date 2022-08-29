@@ -7,7 +7,7 @@ export async function main(ns) {
     await navigator.clipboard.writeText(serverPaths[serverName]);
 }
 
-function findServer(ns, startServer, nextServer, parentPath = '') {
+export function findServer(ns, startServer, nextServer, parentPath = '') {
     let serverPath = 'home;';
     if (nextServer !== 'home') {
         serverPath = `${parentPath} connect ${nextServer};`
