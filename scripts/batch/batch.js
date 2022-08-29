@@ -27,7 +27,13 @@ export async function main(ns) {
     log(ns, JSON.stringify(HWGWBatchConfig), debug);
     logSeparator(ns, debug);
 
-    await executeBatch(ns, HWGWBatchConfig);
+    const batchesCount = Math.floor(maxThreadsInNetwork / HWGWBatchConfig.total);
+    const batchPromises = [];
+    for (var i = 0; i < batchesCount; i++) {
+        batchPromises.push(executeBatch(ns, HWGWBatchConfig));
+    }
+
+    await Promise.all(batchPromises)
 }
 
 async function executeBatch(ns, HWGWBatchConfig) {
