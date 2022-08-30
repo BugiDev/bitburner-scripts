@@ -11,6 +11,7 @@ import {
 
 /** @param {NS} ns */
 export async function main(ns: NS) {
+  ns.disableLog('ALL');
   const serverName = ns.args[0] as string;
   const debug = (ns.args[1] || false) as boolean;
   logSeparator(ns, debug);
@@ -36,7 +37,7 @@ export async function main(ns: NS) {
     log(ns, `Batch count: ${batchesCount}`, debug);
     const batchPromises = [];
     for (let i = 0; i < batchesCount; i++) {
-      batchPromises.push(executeBatch(ns, serverName, HWGWBatchConfig, i * 1000));
+      batchPromises.push(executeBatch(ns, serverName, HWGWBatchConfig, i * 500));
     }
 
     await Promise.all(batchPromises);
@@ -51,18 +52,18 @@ async function executeBatch(
 ) {
   await ns.asleep(delay);
   while (true) {
-    await executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakHack);
+    executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakHack);
     await ns.asleep(200);
-    await executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakGrow);
+    executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakGrow);
     await ns.asleep(HWGWBatchConfig.weakenGrowTime - 100 - HWGWBatchConfig.growTime);
-    await executeRemoteGrow(ns, targetServer, HWGWBatchConfig.grow);
+    executeRemoteGrow(ns, targetServer, HWGWBatchConfig.grow);
     await ns.asleep(HWGWBatchConfig.growTime - 200 - HWGWBatchConfig.hackTime);
-    await executeRemoteHack(ns, targetServer, HWGWBatchConfig.hack);
+    executeRemoteHack(ns, targetServer, HWGWBatchConfig.hack);
     await ns.asleep(HWGWBatchConfig.hackTime + 300);
   }
 }
 
-async function executeRemoteScript(
+function executeRemoteScript(
   ns: NS,
   scriptPath: string,
   targetServer: string,
@@ -74,7 +75,8 @@ async function executeRemoteScript(
       const reducedValue = {
         ...normalized,
       };
-      if (freeThreads[server] > 0) {
+      const isScriptAlreadyRunning = ns.scriptRunning(scriptPath, server);
+      if (freeThreads[server] > 0 && !isScriptAlreadyRunning) {
         reducedValue[server] = freeThreads[server];
       }
       return reducedValue;
@@ -95,16 +97,16 @@ async function executeRemoteScript(
   }
 }
 
-async function executeRemoteWeak(ns: NS, targetServer: string, threadCount: number) {
-  await executeRemoteScript(ns, CONFIG.loopMalwareWeaken, targetServer, threadCount);
+export function executeRemoteWeak(ns: NS, targetServer: string, threadCount: number) {
+  executeRemoteScript(ns, CONFIG.loopMalwareWeaken, targetServer, threadCount);
 }
 
-async function executeRemoteHack(ns: NS, targetServer: string, threadCount: number) {
-  await executeRemoteScript(ns, CONFIG.loopMalwareHack, targetServer, threadCount);
+export function executeRemoteHack(ns: NS, targetServer: string, threadCount: number) {
+  executeRemoteScript(ns, CONFIG.loopMalwareHack, targetServer, threadCount);
 }
 
-async function executeRemoteGrow(ns: NS, targetServer: string, threadCount: number) {
-  await executeRemoteScript(ns, CONFIG.loopMalwareGrow, targetServer, threadCount);
+export function executeRemoteGrow(ns: NS, targetServer: string, threadCount: number) {
+  executeRemoteScript(ns, CONFIG.loopMalwareGrow, targetServer, threadCount);
 }
 
 interface HWGWBatchConfigInterface {
