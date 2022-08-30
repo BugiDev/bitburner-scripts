@@ -1,7 +1,7 @@
 export const CONFIG = {
-  malwareFile: '/malware/malware.js',
+  malwareFile: '/scripts/malware/malware.js',
   myServerPrefix: 'bugi-server',
-  loopMalwareHack: '/loop/hack.js',
-  loopMalwareGrow: '/loop/grow.js',
-  loopMalwareWeaken: '/loop/weaken.js',
+  loopMalwareHack: '/scripts/loop/hack.js',
+  loopMalwareGrow: '/scripts/loop/grow.js',
+  loopMalwareWeaken: '/scripts/loop/weaken.js',
 };
