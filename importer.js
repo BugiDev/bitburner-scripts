@@ -1,6 +1,5 @@
 export const IMPORT_CONFIG = {
   baseUrl: 'https://raw.githubusercontent.com/BugiDev/bitburner-scripts/main/',
-  localScriptsFolderName: 'scripts',
 };
 
 const IMPORT_FILES = [
@@ -42,8 +41,6 @@ const IMPORT_FILES = [
   'loop/hack.js',
   'loop/grow.js',
   'loop/weaken.js',
-  'loop/loop-deploy.js',
-  'loop/loop-hwgw.js',
 
   // BATCH
   'batch/batch.js',
@@ -54,7 +51,7 @@ function getRemoteFileURL(fileName) {
 }
 
 function getLocalFilePath(fileName) {
-  return `/${IMPORT_CONFIG.localScriptsFolderName}/${fileName}`;
+  return `/${fileName}`;
 }
 
 /** @param {NS} ns **/
