@@ -51,7 +51,7 @@ function getRemoteFileURL(fileName) {
 }
 
 function getLocalFilePath(fileName) {
-  return `/${fileName}`;
+  return `${fileName}`;
 }
 
 /** @param {NS} ns **/
