@@ -24,7 +24,9 @@ function executeRemoteScript(ns, scriptPath, targetServer, threadCount, id) {
             }
         }
     }
-    log(ns, red(`Not all threads executed for ${scriptPath} in batch ${id}!`));
+    if (threadsToSpread > 0) {
+        log(ns, red(`Not all threads executed for ${scriptPath} in batch ${id}!`));
+    }
 }
 export function executeRemoteWeak(ns, targetServer, threadCount, id) {
     executeRemoteScript(ns, CONFIG.loopMalwareWeaken, targetServer, threadCount, id);

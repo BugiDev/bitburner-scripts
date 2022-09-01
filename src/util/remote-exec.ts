@@ -33,7 +33,9 @@ function executeRemoteScript(
     }
   }
 
-  log(ns, red(`Not all threads executed for ${scriptPath} in batch ${id}!`));
+  if (threadsToSpread > 0) {
+    log(ns, red(`Not all threads executed for ${scriptPath} in batch ${id}!`));
+  }
 }
 
 export function executeRemoteWeak(
