@@ -14,11 +14,8 @@ export async function main(ns: NS) {
   logSeparator(ns, debug);
 
   const maxThreads = await getNetworkMaxThreadCount(ns);
-  const maxThreadsInNetwork = Object.keys(maxThreads).reduce((maxCount, threadsForServer) => {
-    return maxCount + maxThreads[threadsForServer];
-  }, 0);
 
-  log(ns, `Max threads in network: ${maxThreadsInNetwork}`, debug);
+  log(ns, `Max threads in network: ${maxThreads.total}`, debug);
   logSeparator(ns, debug);
 
   await maxOutServer(ns, serverName, debug);

@@ -21,6 +21,7 @@ const IMPORT_FILES = [
   'util/thread.js',
   'util/network.js',
   'util/server.js',
+  'util/remote-exec.js',
 
   // HACK
   'hack/hack-all.js',

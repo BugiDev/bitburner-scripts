@@ -30,3 +30,7 @@ export function logSeparator(ns: NS, debug = false) {
     ns.print(text);
   }
 }
+
+export function red(text: string) {
+  return `\u001b[31m${text}\u001b[0m`;
+}

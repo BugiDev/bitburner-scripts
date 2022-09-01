@@ -20,15 +20,26 @@ function getNetworkThreadCount(ns, startServer, targetServer, callback) {
     const servers = ns.scan(targetServer).filter((server) => server !== startServer);
     if (servers.length > 0) {
         return servers.reduce((maxThreadsCount, serverName) => {
+            const childThreadCount = callback(ns, serverName);
+            const recursion = getNetworkThreadCount(ns, targetServer, serverName, callback);
             const reducedValue = {
-                ...maxThreadsCount,
-                ...getNetworkThreadCount(ns, targetServer, serverName, callback),
+                threads: {
+                    ...maxThreadsCount.threads,
+                    [serverName]: childThreadCount,
+                    ...recursion.threads,
+                },
+                total: maxThreadsCount.total + childThreadCount + recursion.total,
             };
-            reducedValue[serverName] = callback(ns, serverName);
             return reducedValue;
-        }, {});
+        }, {
+            threads: {},
+            total: 0,
+        });
     }
-    return {};
+    return {
+        threads: {},
+        total: 0,
+    };
 }
 export function getNetworkFreeThreadCount(ns) {
     return getNetworkThreadCount(ns, 'home', 'home', getServerFreeThreadCount);

@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { log, logSeparator } from '/util';
+import { log, logSeparator, red } from '/util';
 import { maxOutServer } from '/util/server';
 import { CONFIG } from '/config';
 import {
@@ -8,6 +8,7 @@ import {
   getServerFreeThreadCount,
   ThreadCount,
 } from '/util/thread';
+import { executeRemoteGrow, executeRemoteHack, executeRemoteWeak } from '/util/remote-exec';
 
 /** @param {NS} ns */
 export async function main(ns: NS) {
@@ -19,11 +20,7 @@ export async function main(ns: NS) {
   logSeparator(ns, debug);
 
   const maxThreads = await getNetworkMaxThreadCount(ns);
-  const maxThreadsInNetwork = Object.keys(maxThreads).reduce((maxCount, threadsForServer) => {
-    return maxCount + maxThreads[threadsForServer];
-  }, 0);
-
-  log(ns, `Max threads in network: ${maxThreadsInNetwork}`, debug);
+  log(ns, `Max threads in network: ${maxThreads.total}`, debug);
   logSeparator(ns, debug);
 
   await maxOutServer(ns, serverName, debug);
@@ -33,11 +30,11 @@ export async function main(ns: NS) {
   logSeparator(ns, debug);
 
   if (HWGWBatchConfig) {
-    const batchesCount = Math.floor(maxThreadsInNetwork / HWGWBatchConfig.total);
+    const batchesCount = Math.floor(maxThreads.total / HWGWBatchConfig.total);
     log(ns, `Batch count: ${batchesCount}`, debug);
     const batchPromises = [];
     for (let i = 0; i < batchesCount; i++) {
-      batchPromises.push(executeBatch(ns, serverName, HWGWBatchConfig, i * 500));
+      batchPromises.push(executeBatch(ns, serverName, HWGWBatchConfig, i * 500, i));
     }
 
     await Promise.all(batchPromises);
@@ -48,65 +45,20 @@ async function executeBatch(
   ns: NS,
   targetServer: string,
   HWGWBatchConfig: HWGWBatchConfigInterface,
-  delay: number
+  delay: number,
+  id: string | number
 ) {
   await ns.asleep(delay);
   while (true) {
-    executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakHack);
+    executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakHack, id);
     await ns.asleep(200);
-    executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakGrow);
+    executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakGrow, id);
     await ns.asleep(HWGWBatchConfig.weakenGrowTime - 100 - HWGWBatchConfig.growTime);
-    executeRemoteGrow(ns, targetServer, HWGWBatchConfig.grow);
+    executeRemoteGrow(ns, targetServer, HWGWBatchConfig.grow, id);
     await ns.asleep(HWGWBatchConfig.growTime - 200 - HWGWBatchConfig.hackTime);
-    executeRemoteHack(ns, targetServer, HWGWBatchConfig.hack);
+    executeRemoteHack(ns, targetServer, HWGWBatchConfig.hack, id);
     await ns.asleep(HWGWBatchConfig.hackTime + 300);
   }
-}
-
-function executeRemoteScript(
-  ns: NS,
-  scriptPath: string,
-  targetServer: string,
-  threadCount: number
-) {
-  const freeThreads: ThreadCount = getNetworkFreeThreadCount(ns);
-  const normalizedFreeThreads: ThreadCount = Object.keys(freeThreads).reduce(
-    (normalized, server): ThreadCount => {
-      const reducedValue = {
-        ...normalized,
-      };
-      const isScriptAlreadyRunning = ns.scriptRunning(scriptPath, server);
-      if (freeThreads[server] > 0 && !isScriptAlreadyRunning) {
-        reducedValue[server] = freeThreads[server];
-      }
-      return reducedValue;
-    },
-    {} as ThreadCount
-  );
-  let threadsToSpread = threadCount;
-
-  for (const serverName in normalizedFreeThreads) {
-    const serverThreads = normalizedFreeThreads[serverName];
-    if (serverThreads >= threadsToSpread) {
-      ns.exec(scriptPath, serverName, threadsToSpread, targetServer, threadsToSpread);
-      break;
-    } else {
-      ns.exec(scriptPath, serverName, serverThreads, targetServer, serverThreads);
-      threadsToSpread -= serverThreads;
-    }
-  }
-}
-
-export function executeRemoteWeak(ns: NS, targetServer: string, threadCount: number) {
-  executeRemoteScript(ns, CONFIG.loopMalwareWeaken, targetServer, threadCount);
-}
-
-export function executeRemoteHack(ns: NS, targetServer: string, threadCount: number) {
-  executeRemoteScript(ns, CONFIG.loopMalwareHack, targetServer, threadCount);
-}
-
-export function executeRemoteGrow(ns: NS, targetServer: string, threadCount: number) {
-  executeRemoteScript(ns, CONFIG.loopMalwareGrow, targetServer, threadCount);
 }
 
 interface HWGWBatchConfigInterface {

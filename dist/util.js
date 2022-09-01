@@ -26,3 +26,6 @@ export function logSeparator(ns, debug = false) {
         ns.print(text);
     }
 }
+export function red(text) {
+    return `\u001b[31m${text}\u001b[0m`;
+}
