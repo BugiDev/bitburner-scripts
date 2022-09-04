@@ -5,6 +5,7 @@ import { log, logSeparator } from '/util';
  * @param debug
  */
 export async function main(ns: NS, debug = false) {
+  ns.disableLog('ALL');
   const serverName = ns.args[0] as string;
   ns.tail();
 

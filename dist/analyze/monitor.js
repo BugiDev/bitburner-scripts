@@ -3,6 +3,7 @@ import { log, logSeparator } from '/util';
  * @param debug
  */
 export async function main(ns, debug = false) {
+    ns.disableLog('ALL');
     const serverName = ns.args[0];
     ns.tail();
     while (true) {

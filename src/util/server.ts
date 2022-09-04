@@ -15,7 +15,7 @@ export async function maxOutServer(ns: NS, serverName: string, debug = false) {
   const serverMaxMoney = ns.getServerMaxMoney(serverName);
   let serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
 
-  const growthAnalyzeSecurity = ns.growthAnalyzeSecurity(1, serverName);
+  const growthAnalyzeSecurity = ns.growthAnalyzeSecurity(1);
   const weakenAnalyze = ns.weakenAnalyze(1);
   const ratio = Math.floor(weakenAnalyze / growthAnalyzeSecurity);
   const cycle = 1 + ratio;
