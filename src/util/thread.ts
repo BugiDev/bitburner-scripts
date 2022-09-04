@@ -39,7 +39,7 @@ function getNetworkThreadCount(
       (maxThreadsCount, serverName): ThreadCount => {
         const childThreadCount = callback(ns, serverName);
         const recursion = getNetworkThreadCount(ns, targetServer, serverName, callback);
-        const reducedValue = {
+        return {
           threads: {
             ...maxThreadsCount.threads,
             [serverName]: childThreadCount,
@@ -47,7 +47,6 @@ function getNetworkThreadCount(
           },
           total: maxThreadsCount.total + childThreadCount + recursion.total,
         };
-        return reducedValue;
       },
       {
         threads: {},

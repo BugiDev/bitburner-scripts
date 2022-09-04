@@ -1,13 +1,8 @@
 import { NS } from '@ns';
-import { log, logSeparator, red } from '/util';
+import { log, logSeparator } from '/util';
 import { maxOutServer } from '/util/server';
 import { CONFIG } from '/config';
-import {
-  getNetworkMaxThreadCount,
-  getNetworkFreeThreadCount,
-  getServerFreeThreadCount,
-  ThreadCount,
-} from '/util/thread';
+import { getNetworkMaxThreadCount, getServerFreeThreadCount } from '/util/thread';
 import { executeRemoteGrow, executeRemoteHack, executeRemoteWeak } from '/util/remote-exec';
 
 /** @param {NS} ns */
@@ -34,7 +29,7 @@ export async function main(ns: NS) {
     log(ns, `Batch count: ${batchesCount}`, debug);
     const batchPromises = [];
     for (let i = 0; i < batchesCount; i++) {
-      batchPromises.push(executeBatch(ns, serverName, HWGWBatchConfig, i * 500, i));
+      batchPromises.push(executeBatch(ns, serverName, HWGWBatchConfig, i * 1000, i));
     }
 
     await Promise.all(batchPromises);
@@ -51,13 +46,13 @@ async function executeBatch(
   await ns.asleep(delay);
   while (true) {
     executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakHack, id);
-    await ns.asleep(200);
+    await ns.asleep(400);
     executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakGrow, id);
-    await ns.asleep(HWGWBatchConfig.weakenGrowTime - 100 - HWGWBatchConfig.growTime);
+    await ns.asleep(HWGWBatchConfig.weakenGrowTime - 200 - HWGWBatchConfig.growTime);
     executeRemoteGrow(ns, targetServer, HWGWBatchConfig.grow, id);
-    await ns.asleep(HWGWBatchConfig.growTime - 200 - HWGWBatchConfig.hackTime);
+    await ns.asleep(HWGWBatchConfig.growTime - 400 - HWGWBatchConfig.hackTime);
     executeRemoteHack(ns, targetServer, HWGWBatchConfig.hack, id);
-    await ns.asleep(HWGWBatchConfig.hackTime + 300);
+    await ns.asleep(HWGWBatchConfig.hackTime + 600);
   }
 }
 
