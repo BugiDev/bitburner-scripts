@@ -9,6 +9,7 @@ function executeRemoteScript(ns, scriptPath, targetServer, threadCount, id) {
             const serverThreads = freeThreads.threads[serverName];
             if (serverThreads >= threadsToSpread) {
                 if (ns.isRunning(scriptPath, serverName, targetServer, threadsToSpread, id)) {
+                    log(ns, red(`Previous batch didn't finish for ${scriptPath} in batch ${id}!`));
                     break;
                 }
                 ns.exec(scriptPath, serverName, threadsToSpread, targetServer, threadsToSpread, id);
@@ -17,6 +18,7 @@ function executeRemoteScript(ns, scriptPath, targetServer, threadCount, id) {
             }
             else {
                 if (ns.isRunning(scriptPath, serverName, targetServer, serverThreads, id)) {
+                    log(ns, red(`Previous batch didn't finish for ${scriptPath} in batch ${id}!`));
                     break;
                 }
                 ns.exec(scriptPath, serverName, serverThreads, targetServer, serverThreads, id);

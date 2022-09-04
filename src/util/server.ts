@@ -15,11 +15,22 @@ export async function maxOutServer(ns: NS, serverName: string, debug = false) {
   const serverMaxMoney = ns.getServerMaxMoney(serverName);
   let serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
 
+  const growthAnalyzeSecurity = ns.growthAnalyzeSecurity(1, serverName);
+  const weakenAnalyze = ns.weakenAnalyze(1);
+  const ratio = Math.floor(weakenAnalyze / growthAnalyzeSecurity);
+  const cycle = 1 + ratio;
+  const cyclesCount = Math.floor(freeTreadCount.total / cycle);
+
   while (serverCurrentMoney < serverMaxMoney) {
     printMoneyCalculation(ns, serverName, debug);
-    executeRemoteGrow(ns, serverName, freeTreadCount.total, 1);
-    const growTime = ns.getGrowTime(serverName);
-    await ns.sleep(growTime + 10);
+    const growThreads = cyclesCount * ratio;
+    const weakThreads = freeTreadCount.total - cyclesCount * ratio;
+    log(ns, `Maxing out with ${growThreads} grow threads`, debug);
+    log(ns, `Maxing out with ${weakThreads} weaken threads`, debug);
+    executeRemoteGrow(ns, serverName, growThreads, 1);
+    executeRemoteWeak(ns, serverName, weakThreads, 1);
+    const weakenTime = ns.getWeakenTime(serverName);
+    await ns.sleep(weakenTime + 10);
     serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
   }
   printMoneyCalculation(ns, serverName, debug);
