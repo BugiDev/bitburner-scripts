@@ -27,7 +27,7 @@ export async function main(ns) {
         log(ns, `Batch count: ${batchesCount}`, debug);
         const batchPromises = [];
         for (let i = 0; i < batchesCount; i++) {
-            batchPromises.push(executeBatch(ns, serverName, HWGWBatchConfig, i * 200, i, debug));
+            batchPromises.push(executeBatch(ns, serverName, HWGWBatchConfig, i * TIME_STEP * 2, i, debug));
         }
         await Promise.all(batchPromises);
     }
@@ -35,7 +35,6 @@ export async function main(ns) {
 async function executeBatch(ns, targetServer, HWGWBatchConfig, delay, id, debug = false) {
     await ns.asleep(delay);
     while (true) {
-        await ns.asleep(TIME_STEP);
         const freeThreads = getNetworkFreeThreadCount(ns);
         if (freeThreads.total - HWGWBatchConfig.total >= 0) {
             executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakHack, `${targetServer}-weak-hack-${id}`);
@@ -45,10 +44,10 @@ async function executeBatch(ns, targetServer, HWGWBatchConfig, delay, id, debug 
             executeRemoteGrow(ns, targetServer, HWGWBatchConfig.grow, `${targetServer}-grow-${id}`);
             await ns.asleep(HWGWBatchConfig.growTime - TIME_STEP * 2 - HWGWBatchConfig.hackTime);
             executeRemoteHack(ns, targetServer, HWGWBatchConfig.hack, `${targetServer}-hack-${id}`);
-            await ns.asleep(HWGWBatchConfig.hackTime + TIME_STEP * 4);
+            await ns.asleep(HWGWBatchConfig.hackTime + TIME_STEP * 6);
         }
         else {
-            log(ns, red(`No enough free threads, skipping batch ${id}...`), debug);
+            log(ns, red(`No enough free threads, skipping batch ${id}. Free vs needed: ${freeThreads.total} vs ${HWGWBatchConfig.total}`), debug);
             await ns.asleep(HWGWBatchConfig.weakenHackTime + TIME_STEP * 2);
         }
     }
