@@ -27,8 +27,8 @@ export async function maxOutServer(ns: NS, serverName: string, debug = false) {
     const weakThreads = freeTreadCount.total - cyclesCount * ratio;
     log(ns, `Maxing out with ${growThreads} grow threads`, debug);
     log(ns, `Maxing out with ${weakThreads} weaken threads`, debug);
-    executeRemoteGrow(ns, serverName, growThreads, 1);
-    executeRemoteWeak(ns, serverName, weakThreads, 1);
+    executeRemoteGrow(ns, serverName, growThreads, 1, 0);
+    executeRemoteWeak(ns, serverName, weakThreads, 1, 0);
     const weakenTime = ns.getWeakenTime(serverName);
     await ns.sleep(weakenTime + 10);
     serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
@@ -40,7 +40,7 @@ export async function maxOutServer(ns: NS, serverName: string, debug = false) {
 
   while (serverCurrentSecLevel > serverMinSecLevel) {
     printSecurityCalculation(ns, serverName, debug);
-    executeRemoteWeak(ns, serverName, freeTreadCount.total, 1);
+    executeRemoteWeak(ns, serverName, freeTreadCount.total, 1, 0);
     const weakenTime = ns.getWeakenTime(serverName);
     await ns.sleep(weakenTime + 10);
     serverCurrentSecLevel = ns.getServerSecurityLevel(serverName);
