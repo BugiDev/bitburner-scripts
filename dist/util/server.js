@@ -16,7 +16,7 @@ export async function maxOutServer(ns, serverName, debug = false) {
     while (serverCurrentMoney < serverMaxMoney) {
         printMoneyCalculation(ns, serverName, debug);
         const currentMoneyRatio = serverMaxMoney / serverCurrentMoney;
-        const growThreads = ns.growthAnalyze(serverName, currentMoneyRatio);
+        const growThreads = Math.ceil(ns.growthAnalyze(serverName, currentMoneyRatio));
         const growTime = ns.getGrowTime(serverName);
         if (growThreads >= freeTreadCount.total) {
             log(ns, `Maxing out with ${growThreads} grow threads`, debug);
