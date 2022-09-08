@@ -3,7 +3,7 @@ import { maxOutServer } from '/util/server';
 import { getNetworkMaxThreadCount, getNetworkFreeThreadCount, getServerFreeThreadCount, } from '/util/thread';
 import { executeRemoteGrow, executeRemoteHack, executeRemoteWeak } from '/util/remote-exec';
 import { hasFormulas } from '/util/home';
-export const TIME_STEP = 200;
+import { CONFIG } from '/config';
 /** @param {NS} ns */
 export async function main(ns) {
     const serverName = ns.args[0];
@@ -27,15 +27,15 @@ export async function main(ns) {
         const delays = calculateDelays(ns, serverName);
         log(ns, `Delays: ${JSON.stringify(delays)}`, debug);
         logSeparator(ns, debug);
-        const maxBatchesPerCycle = Math.floor(delays.total / (TIME_STEP * 5));
+        const maxBatchesPerCycle = Math.floor(delays.total / (CONFIG.timeStep * 5));
         const batchesCount = Math.floor(maxThreads.total / HWGWBatchConfig.total);
         const batchesPerCycle = batchesCount >= maxBatchesPerCycle ? maxBatchesPerCycle : batchesCount;
         log(ns, `Batch count: ${batchesPerCycle}`, debug);
-        const totalDelayBetweenBatches = TIME_STEP * batchesPerCycle;
+        const totalDelayBetweenBatches = CONFIG.timeStep * batchesPerCycle;
         const cycleDelay = delays.total >= totalDelayBetweenBatches ? delays.total - totalDelayBetweenBatches : 0;
         while (true) {
             for (let i = 0; i < batchesPerCycle; i++) {
-                await ns.sleep(TIME_STEP * 5);
+                await ns.sleep(CONFIG.timeStep * 5);
                 executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
                 log(ns, `Executed batch ${i}`, debug);
             }
@@ -62,9 +62,9 @@ function calculateDelays(ns, serverName) {
     const { hackTime, growTime, weakenTime } = getTimings(ns, serverName);
     return {
         weakHack: 0,
-        weakGrow: TIME_STEP * 2,
-        grow: weakenTime - growTime + TIME_STEP,
-        hack: weakenTime - hackTime - TIME_STEP,
+        weakGrow: CONFIG.timeStep * 2,
+        grow: weakenTime - growTime + CONFIG.timeStep,
+        hack: weakenTime - hackTime - CONFIG.timeStep,
         total: weakenTime,
     };
 }
@@ -95,19 +95,19 @@ async function getHWGWBatchConfig(ns, serverName, debug = false) {
         return null;
     }
     executeRemoteHack(ns, serverName, threadsToHackHalf, 1, 0);
-    await ns.sleep(hackTime + TIME_STEP);
+    await ns.sleep(hackTime + CONFIG.timeStep);
     const securityIncreaseForHack = ns.hackAnalyzeSecurity(threadsToHackHalf, serverName);
     const weakenAnalyze = ns.weakenAnalyze(1);
     const weakenThreadsNeededForHack = Math.ceil(securityIncreaseForHack / weakenAnalyze);
     executeRemoteWeak(ns, serverName, weakenThreadsNeededForHack, 1, 0);
-    await ns.sleep(weakenTime + TIME_STEP);
+    await ns.sleep(weakenTime + CONFIG.timeStep);
     const threadsToGrowHalf = Math.ceil(ns.growthAnalyze(serverName, 2));
     executeRemoteGrow(ns, serverName, threadsToGrowHalf, 1, 0);
-    await ns.sleep(growTime + TIME_STEP);
+    await ns.sleep(growTime + CONFIG.timeStep);
     const securityIncreaseForGrow = ns.growthAnalyzeSecurity(threadsToGrowHalf);
     const weakenThreadsNeededForGrow = Math.ceil(securityIncreaseForGrow / weakenAnalyze);
     executeRemoteWeak(ns, serverName, weakenThreadsNeededForGrow, 1, 0);
-    await ns.sleep(weakenTime + TIME_STEP);
+    await ns.sleep(weakenTime + CONFIG.timeStep);
     return {
         hack: threadsToHackHalf,
         grow: threadsToGrowHalf,

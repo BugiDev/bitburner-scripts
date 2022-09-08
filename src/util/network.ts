@@ -1,4 +1,6 @@
-import { NS } from '@ns';
+import { NS, Server } from '@ns';
+import { maxOutServer } from '/util/server';
+import { log, logSeparator } from '/util';
 
 export async function walkNetwork(
   ns: NS,
@@ -22,4 +24,50 @@ export async function walkWholeNetwork(
   debug = false
 ) {
   await walkNetwork(ns, 'home', 'home', callback, debug);
+}
+
+export async function getAllServersInNetwork(ns: NS, debug = false): Promise<Server[]> {
+  const servers: Server[] = [];
+  await walkWholeNetwork(
+    ns,
+    (_callbackNS, serverName: string) => {
+      servers.push(ns.getServer(serverName));
+    },
+    debug
+  );
+  return servers;
+}
+
+export interface HackedServer extends Server {
+  hackChance: number;
+}
+
+export async function getHackedServersInNetwork(ns: NS, debug = false): Promise<HackedServer[]> {
+  const servers: HackedServer[] = [];
+  await walkWholeNetwork(
+    ns,
+    (_callbackNS, serverName: string) => {
+      if (ns.hasRootAccess(serverName)) {
+        const hackedServer: HackedServer = {
+          ...ns.getServer(serverName),
+          hackChance: ns.hackAnalyzeChance(serverName),
+        };
+        servers.push(hackedServer);
+      }
+    },
+    debug
+  );
+  return servers;
+}
+
+export async function maxOutAllHackedServers(ns: NS, debug = false) {
+  log(ns, 'Maxing out all hacked servers...', debug);
+  logSeparator(ns, debug);
+  const hackedServers = await getHackedServersInNetwork(ns, debug);
+
+  for (const server of hackedServers) {
+    await maxOutServer(ns, server.hostname, debug);
+  }
+  log(ns, 'Maxed out all hacked servers!', debug);
+  logSeparator(ns, debug);
 }
