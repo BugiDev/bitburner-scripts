@@ -64,8 +64,17 @@ export async function maxOutAllHackedServers(ns: NS, debug = false) {
   log(ns, 'Maxing out all hacked servers...', debug);
   logSeparator(ns, debug);
   const hackedServers = await getHackedServersInNetwork(ns, debug);
+  const sortedServers = hackedServers.sort((a, b) => {
+    if (a.requiredHackingSkill < b.requiredHackingSkill) {
+      return -1;
+    }
+    if (a.requiredHackingSkill > b.requiredHackingSkill) {
+      return 1;
+    }
+    return 0;
+  });
 
-  for (const server of hackedServers) {
+  for (const server of sortedServers) {
     await maxOutServer(ns, server.hostname, debug);
   }
   log(ns, 'Maxed out all hacked servers!', debug);

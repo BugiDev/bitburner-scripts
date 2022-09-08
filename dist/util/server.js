@@ -1,9 +1,11 @@
 import { getNetworkFreeThreadCount } from '/util/thread';
-import { log, logSeparator } from '/util';
+import { bold, log, logSeparator } from '/util';
 import { executeRemoteGrow, executeRemoteWeak } from '/util/remote-exec';
 import { CONFIG } from '/config';
 export async function maxOutServer(ns, serverName, debug = false) {
     ns.disableLog('ALL');
+    log(ns, `Maxing out server: ${serverName}`, debug);
+    logSeparator(ns, debug);
     const freeTreadCount = getNetworkFreeThreadCount(ns);
     if (freeTreadCount.total < 1) {
         log(ns, 'No enough threads to max out the server!', debug);
@@ -43,7 +45,7 @@ export async function maxOutServer(ns, serverName, debug = false) {
         serverCurrentSecLevel = ns.getServerSecurityLevel(serverName);
     }
     printSecurityCalculation(ns, serverName, debug);
-    log(ns, `Maxed out server: ${serverName}`, debug);
+    log(ns, bold(`Maxed out server: ${serverName}`), debug);
     logSeparator(ns, debug);
 }
 function printMoneyCalculation(ns, serverName, debug = false) {
