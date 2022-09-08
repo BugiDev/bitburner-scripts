@@ -4,4 +4,5 @@ export const CONFIG = {
     loopMalwareHack: '/loop/hack.js',
     loopMalwareGrow: '/loop/grow.js',
     loopMalwareWeaken: '/loop/weaken.js',
+    timeStep: 200,
 };

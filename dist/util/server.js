@@ -1,7 +1,7 @@
 import { getNetworkFreeThreadCount } from '/util/thread';
 import { log, logSeparator } from '/util';
 import { executeRemoteGrow, executeRemoteWeak } from '/util/remote-exec';
-import { TIME_STEP } from '/batch/batch';
+import { CONFIG } from '/config';
 export async function maxOutServer(ns, serverName, debug = false) {
     ns.disableLog('ALL');
     const freeTreadCount = getNetworkFreeThreadCount(ns);
@@ -25,7 +25,7 @@ export async function maxOutServer(ns, serverName, debug = false) {
         executeRemoteGrow(ns, serverName, growThreads, 1, 0);
         executeRemoteWeak(ns, serverName, weakThreads, 1, 0);
         const weakenTime = ns.getWeakenTime(serverName);
-        await ns.sleep(weakenTime + TIME_STEP);
+        await ns.sleep(weakenTime + CONFIG.timeStep);
         serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
     }
     printMoneyCalculation(ns, serverName, debug);
@@ -35,7 +35,7 @@ export async function maxOutServer(ns, serverName, debug = false) {
         printSecurityCalculation(ns, serverName, debug);
         executeRemoteWeak(ns, serverName, freeTreadCount.total, 1, 0);
         const weakenTime = ns.getWeakenTime(serverName);
-        await ns.sleep(weakenTime + TIME_STEP);
+        await ns.sleep(weakenTime + CONFIG.timeStep);
         serverCurrentSecLevel = ns.getServerSecurityLevel(serverName);
     }
     printSecurityCalculation(ns, serverName, debug);
