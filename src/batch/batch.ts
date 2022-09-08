@@ -7,8 +7,9 @@ import {
   getServerFreeThreadCount,
 } from '/util/thread';
 import { executeRemoteGrow, executeRemoteHack, executeRemoteWeak } from '/util/remote-exec';
+import { hasFormulas } from '/util/home';
 
-const TIME_STEP = 200;
+export const TIME_STEP = 200;
 
 /** @param {NS} ns */
 export async function main(ns: NS) {
@@ -34,7 +35,7 @@ export async function main(ns: NS) {
   logSeparator(ns, debug);
 
   if (HWGWBatchConfig) {
-    const delays = calculateDelays(HWGWBatchConfig);
+    const delays = calculateDelays(ns, serverName);
     log(ns, `Delays: ${JSON.stringify(delays)}`, debug);
     logSeparator(ns, debug);
     const maxBatchesPerCycle = Math.floor(delays.total / (TIME_STEP * 5));
@@ -47,7 +48,7 @@ export async function main(ns: NS) {
     while (true) {
       for (let i = 0; i < batchesPerCycle; i++) {
         await ns.sleep(TIME_STEP * 5);
-        executeBatch(ns, serverName, HWGWBatchConfig, i, delays, debug);
+        executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
         log(ns, `Executed batch ${i}`, debug);
       }
 
@@ -63,9 +64,9 @@ function executeBatch(
   targetServer: string,
   HWGWBatchConfig: HWGWBatchConfigInterface,
   id: string | number,
-  delays: any,
   debug = false
 ) {
+  const delays = calculateDelays(ns, targetServer);
   const freeThreads = getNetworkFreeThreadCount(ns);
   if (freeThreads.total - HWGWBatchConfig.total >= 0) {
     executeRemoteWeak(
@@ -107,24 +108,40 @@ function executeBatch(
   }
 }
 
-function calculateDelays(HWGWBatchConfig: HWGWBatchConfigInterface) {
+function calculateDelays(ns: NS, serverName: string) {
+  const { hackTime, growTime, weakenTime } = getTimings(ns, serverName);
   return {
     weakHack: 0,
     weakGrow: TIME_STEP * 2,
-    grow: HWGWBatchConfig.weakenTime - HWGWBatchConfig.growTime + TIME_STEP,
-    hack: HWGWBatchConfig.weakenTime - HWGWBatchConfig.hackTime - TIME_STEP,
-    total: HWGWBatchConfig.weakenTime,
+    grow: weakenTime - growTime + TIME_STEP,
+    hack: weakenTime - hackTime - TIME_STEP,
+    total: weakenTime,
+  };
+}
+
+function getTimings(ns: NS, serverName: string) {
+  if (hasFormulas(ns)) {
+    const server = ns.getServer(serverName);
+    const player = ns.getPlayer();
+    return {
+      hackTime: ns.formulas.hacking.hackTime(server, player),
+      growTime: ns.formulas.hacking.growTime(server, player),
+      weakenTime: ns.formulas.hacking.weakenTime(server, player),
+    };
+  }
+
+  return {
+    hackTime: ns.getHackTime(serverName),
+    growTime: ns.getGrowTime(serverName),
+    weakenTime: ns.getWeakenTime(serverName),
   };
 }
 
 interface HWGWBatchConfigInterface {
   hack: number;
-  hackTime: number;
   weakHack: number;
   grow: number;
-  growTime: number;
   weakGrow: number;
-  weakenTime: number;
   total: number;
 }
 
@@ -136,9 +153,8 @@ async function getHWGWBatchConfig(
 ): Promise<HWGWBatchConfigInterface | null> {
   const serverMaxMoney = ns.getServerMaxMoney(serverName);
   const threadsToHackHalf = Math.floor(ns.hackAnalyzeThreads(serverName, serverMaxMoney / 2)) || 1;
-  const hackTime = ns.getHackTime(serverName);
-  const weakenTime = ns.getWeakenTime(serverName);
   const freeTreadCount = getServerFreeThreadCount(ns, 'home');
+  const { hackTime, weakenTime, growTime } = getTimings(ns, serverName);
 
   if (freeTreadCount < 1) {
     log(ns, 'No enough threads on home to calculate hwgw loop of a server!', debug);
@@ -155,7 +171,6 @@ async function getHWGWBatchConfig(
   executeRemoteWeak(ns, serverName, weakenThreadsNeededForHack, 1, 0);
   await ns.sleep(weakenTime + TIME_STEP);
 
-  const growTime = ns.getGrowTime(serverName);
   const threadsToGrowHalf = Math.ceil(ns.growthAnalyze(serverName, 2));
 
   executeRemoteGrow(ns, serverName, threadsToGrowHalf, 1, 0);
@@ -169,12 +184,9 @@ async function getHWGWBatchConfig(
 
   return {
     hack: threadsToHackHalf,
-    hackTime,
     grow: threadsToGrowHalf,
-    growTime,
     weakHack: weakenThreadsNeededForHack,
     weakGrow: weakenThreadsNeededForGrow,
-    weakenTime,
     total:
       threadsToHackHalf +
       weakenThreadsNeededForHack +
