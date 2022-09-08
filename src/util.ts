@@ -34,3 +34,11 @@ export function logSeparator(ns: NS, debug = false) {
 export function red(text: string) {
   return `\u001b[31m${text}\u001b[0m`;
 }
+
+export function boldRed(text: string) {
+  return `\u001b[1;31m${text}\u001b[0m`;
+}
+
+export function bold(text: string) {
+  return `\u001b[1;32m${text}\u001b[0m`;
+}

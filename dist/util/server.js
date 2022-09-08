@@ -11,21 +11,25 @@ export async function maxOutServer(ns, serverName, debug = false) {
     }
     const serverMaxMoney = ns.getServerMaxMoney(serverName);
     let serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
-    const growthAnalyzeSecurity = ns.growthAnalyzeSecurity(1);
-    const weakenAnalyze = ns.weakenAnalyze(1);
-    const ratio = Math.floor(weakenAnalyze / growthAnalyzeSecurity);
-    const cycle = 1 + ratio;
-    const cyclesCount = Math.floor(freeTreadCount.total / cycle);
     while (serverCurrentMoney < serverMaxMoney) {
         printMoneyCalculation(ns, serverName, debug);
-        const growThreads = cyclesCount * ratio;
-        const weakThreads = freeTreadCount.total - cyclesCount * ratio;
-        log(ns, `Maxing out with ${growThreads} grow threads`, debug);
-        log(ns, `Maxing out with ${weakThreads} weaken threads`, debug);
-        executeRemoteGrow(ns, serverName, growThreads, 1, 0);
-        executeRemoteWeak(ns, serverName, weakThreads, 1, 0);
-        const weakenTime = ns.getWeakenTime(serverName);
-        await ns.sleep(weakenTime + CONFIG.timeStep);
+        const currentMoneyRatio = serverMaxMoney / serverCurrentMoney;
+        const growThreads = ns.growthAnalyze(serverName, currentMoneyRatio);
+        const growTime = ns.getGrowTime(serverName);
+        if (growThreads >= freeTreadCount.total) {
+            log(ns, `Maxing out with ${growThreads} grow threads`, debug);
+            executeRemoteGrow(ns, serverName, freeTreadCount.total, 1, 0);
+            await ns.sleep(growTime + CONFIG.timeStep);
+        }
+        else {
+            const weakThreads = freeTreadCount.total - growThreads;
+            log(ns, `Maxing out with ${growThreads} grow threads`, debug);
+            log(ns, `Maxing out with ${weakThreads} weaken threads`, debug);
+            executeRemoteGrow(ns, serverName, growThreads, 1, 0);
+            executeRemoteWeak(ns, serverName, weakThreads, 1, 0);
+            const weakenTime = ns.getWeakenTime(serverName);
+            await ns.sleep(weakenTime + CONFIG.timeStep);
+        }
         serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
     }
     printMoneyCalculation(ns, serverName, debug);

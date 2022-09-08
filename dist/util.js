@@ -29,3 +29,9 @@ export function logSeparator(ns, debug = false) {
 export function red(text) {
     return `\u001b[31m${text}\u001b[0m`;
 }
+export function boldRed(text) {
+    return `\u001b[1;31m${text}\u001b[0m`;
+}
+export function bold(text) {
+    return `\u001b[1;32m${text}\u001b[0m`;
+}
