@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { getNetworkFreeThreadCount } from '/util/thread';
-import { bold, log, logSeparator } from '/util';
+import { bold, formatMoney, log, logSeparator } from '/util';
 import { executeRemoteGrow, executeRemoteWeak } from '/util/remote-exec';
 import { CONFIG } from '/config';
 
@@ -66,10 +66,6 @@ function printMoneyCalculation(ns: NS, serverName: string, debug = false) {
     debug
   );
   logSeparator(ns, debug);
-}
-
-function formatMoney(ns: NS, money: number) {
-  return ns.nFormat(money, '($ 0.00 a)');
 }
 
 function printSecurityCalculation(ns: NS, serverName: string, debug = false) {

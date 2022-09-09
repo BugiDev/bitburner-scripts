@@ -1,5 +1,5 @@
 import { getNetworkFreeThreadCount } from '/util/thread';
-import { bold, log, logSeparator } from '/util';
+import { bold, formatMoney, log, logSeparator } from '/util';
 import { executeRemoteGrow, executeRemoteWeak } from '/util/remote-exec';
 import { CONFIG } from '/config';
 export async function maxOutServer(ns, serverName, debug = false) {
@@ -53,9 +53,6 @@ function printMoneyCalculation(ns, serverName, debug = false) {
     const serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
     log(ns, `Money calc: ${formatMoney(ns, serverCurrentMoney)}/${formatMoney(ns, serverMaxMoney)}`, debug);
     logSeparator(ns, debug);
-}
-function formatMoney(ns, money) {
-    return ns.nFormat(money, '($ 0.00 a)');
 }
 function printSecurityCalculation(ns, serverName, debug = false) {
     const serverMinSecLevel = ns.getServerMinSecurityLevel(serverName);

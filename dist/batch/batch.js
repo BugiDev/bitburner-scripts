@@ -1,4 +1,4 @@
-import { log, logSeparator, red } from '/util';
+import { bold, formatMoney, log, logSeparator, red } from '/util';
 import { maxOutServer } from '/util/server';
 import { getNetworkMaxThreadCount, getNetworkFreeThreadCount, getServerFreeThreadCount, } from '/util/thread';
 import { executeRemoteGrow, executeRemoteHack, executeRemoteWeak } from '/util/remote-exec';
@@ -37,9 +37,9 @@ export async function main(ns) {
             for (let i = 0; i < batchesPerCycle; i++) {
                 await ns.sleep(CONFIG.timeStep * 5);
                 executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
-                log(ns, `Executed batch ${i}`, debug);
             }
-            log(ns, 'Executed batch cycle', debug);
+            const scriptIncome = ns.getScriptIncome('/batch/batch.js', 'home', serverName, debug);
+            log(ns, bold(`Script income: ${formatMoney(ns, scriptIncome)}`), debug);
             logSeparator(ns, debug);
             await ns.sleep(cycleDelay);
         }

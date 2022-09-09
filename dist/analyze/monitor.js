@@ -1,4 +1,4 @@
-import { log, logSeparator } from '/util';
+import { log, logSeparator, formatMoney } from '/util';
 /** @param {NS} ns
  * @param debug
  */
@@ -6,14 +6,21 @@ export async function main(ns, debug = false) {
     ns.disableLog('ALL');
     const serverName = ns.args[0];
     ns.tail();
+    const serverMaxMoney = ns.getServerMaxMoney(serverName);
+    let prevServerCurrentMoney = 0;
+    const serverMinSecLevel = ns.getServerMinSecurityLevel(serverName);
+    let prevServerCurrentSecLevel = 0;
     while (true) {
-        const serverMaxMoney = ns.getServerMaxMoney(serverName);
         const serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
-        const serverMinSecLevel = ns.getServerMinSecurityLevel(serverName);
         const serverCurrentSecLevel = ns.getServerSecurityLevel(serverName);
-        logSeparator(ns, debug);
-        log(ns, `Money calc: ${ns.nFormat(serverCurrentMoney, '($ 0.00 a)')}/${ns.nFormat(serverMaxMoney, '($ 0.00 a)')}`, debug);
-        log(ns, `Security calc: ${serverCurrentSecLevel}/${serverMinSecLevel}`, debug);
-        await ns.sleep(1000);
+        if (prevServerCurrentMoney !== serverCurrentMoney &&
+            prevServerCurrentSecLevel !== serverCurrentSecLevel) {
+            logSeparator(ns, debug);
+            log(ns, `Money calc: ${formatMoney(ns, serverCurrentMoney)}/${formatMoney(ns, serverMaxMoney)}`, debug);
+            log(ns, `Security calc: ${serverCurrentSecLevel}/${serverMinSecLevel}`, debug);
+        }
+        await ns.sleep(100);
+        prevServerCurrentMoney = serverCurrentMoney;
+        prevServerCurrentSecLevel = serverCurrentSecLevel;
     }
 }

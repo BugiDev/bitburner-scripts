@@ -35,3 +35,6 @@ export function boldRed(text) {
 export function bold(text) {
     return `\u001b[1;32m${text}\u001b[0m`;
 }
+export function formatMoney(ns, money) {
+    return ns.nFormat(money, '($ 0.00 a)');
+}
