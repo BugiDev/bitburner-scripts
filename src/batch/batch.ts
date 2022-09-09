@@ -170,6 +170,9 @@ async function getHWGWBatchConfig(
   executeRemoteWeak(ns, serverName, weakenThreadsNeededForHack, 1, 0);
   await ns.sleep(weakenTime + CONFIG.timeStep);
 
+  // Adding + 10% because of bad calculation
+  // const threadsToGrowHalf =
+  //   Math.ceil(ns.growthAnalyze(serverName, 2)) + Math.ceil(ns.growthAnalyze(serverName, 2) * 0.1);
   const threadsToGrowHalf = Math.ceil(ns.growthAnalyze(serverName, 2));
 
   executeRemoteGrow(ns, serverName, threadsToGrowHalf, 1, 0);

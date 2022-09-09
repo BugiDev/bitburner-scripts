@@ -60,6 +60,24 @@ export async function getHackedServersInNetwork(ns: NS, debug = false): Promise<
   return servers;
 }
 
+export async function getHackedServersWithNoBackdoorInNetwork(
+  ns: NS,
+  debug = false
+): Promise<string[]> {
+  const servers: string[] = [];
+  await walkWholeNetwork(
+    ns,
+    (_callbackNS, serverName: string) => {
+      const server = ns.getServer(serverName);
+      if (server.hasAdminRights && server.backdoorInstalled) {
+        servers.push(serverName);
+      }
+    },
+    debug
+  );
+  return servers;
+}
+
 export async function maxOutAllHackedServers(ns: NS, debug = false) {
   log(ns, 'Maxing out all hacked servers...', debug);
   logSeparator(ns, debug);
