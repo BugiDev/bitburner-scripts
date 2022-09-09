@@ -13,6 +13,7 @@ const IMPORT_FILES = [
   'find/find-server-backdoor.js',
   'find/find-contracts.js',
   'find/find-no-backdoor-servers.js',
+  'find/find-not-hacked-servers.js',
 
   //AUTO BUY
   'auto-buy/auto-buy-hacknet.js',
