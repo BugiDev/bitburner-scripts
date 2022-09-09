@@ -36,7 +36,7 @@ export async function getHackedServersWithNoBackdoorInNetwork(ns, debug = false)
     const servers = [];
     await walkWholeNetwork(ns, (_callbackNS, serverName) => {
         const server = ns.getServer(serverName);
-        if (server.hasAdminRights && server.backdoorInstalled) {
+        if (!server.purchasedByPlayer && server.hasAdminRights && !server.backdoorInstalled) {
             servers.push(serverName);
         }
     }, debug);

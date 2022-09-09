@@ -69,7 +69,7 @@ export async function getHackedServersWithNoBackdoorInNetwork(
     ns,
     (_callbackNS, serverName: string) => {
       const server = ns.getServer(serverName);
-      if (server.hasAdminRights && server.backdoorInstalled) {
+      if (!server.purchasedByPlayer && server.hasAdminRights && !server.backdoorInstalled) {
         servers.push(serverName);
       }
     },
