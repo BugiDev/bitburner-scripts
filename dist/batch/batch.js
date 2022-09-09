@@ -31,6 +31,7 @@ export async function main(ns) {
         const batchesCount = Math.floor(maxThreads.total / HWGWBatchConfig.total);
         const batchesPerCycle = batchesCount >= maxBatchesPerCycle ? maxBatchesPerCycle : batchesCount;
         log(ns, `Batch count: ${batchesPerCycle}`, debug);
+        log(ns, `Total threads used: ${bold(`${HWGWBatchConfig.total * batchesPerCycle}`)}`, debug);
         const totalDelayBetweenBatches = CONFIG.timeStep * batchesPerCycle;
         const cycleDelay = delays.total >= totalDelayBetweenBatches ? delays.total - totalDelayBetweenBatches : 0;
         while (true) {
@@ -38,7 +39,7 @@ export async function main(ns) {
                 await ns.sleep(CONFIG.timeStep * 5);
                 executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
             }
-            const scriptIncome = ns.getScriptIncome('/batch/batch.js', 'home', serverName, debug);
+            const scriptIncome = ns.getScriptIncome('/batch/batch.js', 'home', ...ns.args);
             log(ns, bold(`Script income: ${formatMoney(ns, scriptIncome)}`), debug);
             logSeparator(ns, debug);
             await ns.sleep(cycleDelay);
