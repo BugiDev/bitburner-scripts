@@ -1,4 +1,4 @@
-import { bold, formatMoney, log, logSeparator, red } from '/util';
+import { bold, boldRed, formatMoney, log, logSeparator, red } from '/util';
 import { maxOutServer } from '/util/server';
 import { getNetworkMaxThreadCount, getNetworkFreeThreadCount, getServerFreeThreadCount, } from '/util/thread';
 import { executeRemoteGrow, executeRemoteHack, executeRemoteWeak } from '/util/remote-exec';
@@ -31,16 +31,23 @@ export async function main(ns) {
         const batchesCount = Math.floor(maxThreads.total / HWGWBatchConfig.total);
         const batchesPerCycle = batchesCount >= maxBatchesPerCycle ? maxBatchesPerCycle : batchesCount;
         log(ns, `Batch count: ${batchesPerCycle}`, debug);
-        log(ns, `Total threads used: ${bold(`${HWGWBatchConfig.total * batchesPerCycle}`)}`, debug);
+        log(ns, `Total threads used vs max: ${bold(`${HWGWBatchConfig.total * batchesPerCycle}`)} / ${maxThreads.total}`, debug);
         const totalDelayBetweenBatches = CONFIG.timeStep * batchesPerCycle;
         const cycleDelay = delays.total >= totalDelayBetweenBatches ? delays.total - totalDelayBetweenBatches : 0;
+        let prevIncome = 0;
         while (true) {
             for (let i = 0; i < batchesPerCycle; i++) {
                 await ns.sleep(CONFIG.timeStep * 5);
                 executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
             }
             const scriptIncome = ns.getScriptIncome('/batch/batch.js', 'home', ...ns.args);
-            log(ns, bold(`Script income: ${formatMoney(ns, scriptIncome)}`), debug);
+            if (scriptIncome >= prevIncome) {
+                log(ns, bold(`Script income: ${formatMoney(ns, scriptIncome)}`), debug);
+            }
+            else {
+                log(ns, boldRed(`Script income: ${formatMoney(ns, scriptIncome)}`), debug);
+            }
+            prevIncome = scriptIncome;
             logSeparator(ns, debug);
             await ns.sleep(cycleDelay);
         }
