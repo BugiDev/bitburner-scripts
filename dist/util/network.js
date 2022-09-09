@@ -32,6 +32,18 @@ export async function getHackedServersInNetwork(ns, debug = false) {
     }, debug);
     return servers;
 }
+export async function getNotHackedServersInNetwork(ns, debug = false) {
+    const servers = [];
+    await walkWholeNetwork(ns, (_callbackNS, serverName) => {
+        if (!ns.hasRootAccess(serverName)) {
+            const hackedServer = {
+                ...ns.getServer(serverName),
+            };
+            servers.push(hackedServer);
+        }
+    }, debug);
+    return servers;
+}
 export async function getHackedServersWithNoBackdoorInNetwork(ns, debug = false) {
     const servers = [];
     await walkWholeNetwork(ns, (_callbackNS, serverName) => {
