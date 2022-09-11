@@ -3,7 +3,7 @@ import { log, logSeparator, bold } from '/util';
 export async function main(ns) {
     const serversToBackdoor = await getHackedServersWithNoBackdoorInNetwork(ns, true);
     if (serversToBackdoor.length === 0) {
-        log(ns, bold('All  servers backdoored'), true);
+        log(ns, bold('All servers backdoored'), true);
         logSeparator(ns, true);
     }
     else {
