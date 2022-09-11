@@ -38,7 +38,7 @@ export async function main(ns: NS) {
     log(ns, `Delays: ${JSON.stringify(delays)}`, debug);
     logSeparator(ns, debug);
     const cycleUsableTime = delays.total - CONFIG.timeStep;
-    const maxBatchesPerCycle = Math.floor(cycleUsableTime / (CONFIG.timeStep * 5)) + 1;
+    const maxBatchesPerCycle = Math.floor(cycleUsableTime / (CONFIG.timeStep * 4)) + 1;
     const batchesCount = Math.floor(maxThreads.total / HWGWBatchConfig.total);
     const batchesPerCycle = batchesCount >= maxBatchesPerCycle ? maxBatchesPerCycle : batchesCount;
     log(ns, `Batch count: ${batchesPerCycle}`, debug);
@@ -60,8 +60,8 @@ export async function main(ns: NS) {
         await ns.sleep(delays.total + CONFIG.timeStep * 2);
       } else {
         for (let i = 0; i < batchesPerCycle; i++) {
-          await ns.sleep(CONFIG.timeStep * 5);
           executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
+          await ns.sleep(CONFIG.timeStep * 3);
         }
       }
 
