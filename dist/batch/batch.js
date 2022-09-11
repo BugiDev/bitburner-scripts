@@ -39,7 +39,7 @@ export async function main(ns) {
         while (true) {
             if (batchesPerCycle === 1) {
                 executeBatch(ns, serverName, HWGWBatchConfig, 1, debug);
-                await ns.sleep(delays.total + CONFIG.timeStep);
+                await ns.sleep(delays.total + CONFIG.timeStep * 2);
             }
             else {
                 for (let i = 0; i < batchesPerCycle; i++) {
