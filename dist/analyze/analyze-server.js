@@ -41,6 +41,6 @@ export async function main(ns) {
     const maxMoneyPerSecond = (serverMaxMoney / 2 / (weakenTime + CONFIG.timeStep * 2)) * maxExecutableBatches;
     log(ns, bold(`Server growth rate: ${serverGrowthRate}`), true);
     log(ns, bold(`Max executable batches: ${maxExecutableBatches}`), true);
-    log(ns, bold(`Max money per second: ${maxMoneyPerSecond}`), true);
+    log(ns, bold(`Max money per second: ${formatMoney(ns, maxMoneyPerSecond)}`), true);
     logSeparator(ns, true);
 }

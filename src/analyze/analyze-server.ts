@@ -60,6 +60,6 @@ export async function main(ns: NS) {
 
   log(ns, bold(`Server growth rate: ${serverGrowthRate}`), true);
   log(ns, bold(`Max executable batches: ${maxExecutableBatches}`), true);
-  log(ns, bold(`Max money per second: ${maxMoneyPerSecond}`), true);
+  log(ns, bold(`Max money per second: ${formatMoney(ns, maxMoneyPerSecond)}`), true);
   logSeparator(ns, true);
 }
