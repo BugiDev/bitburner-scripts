@@ -28,7 +28,7 @@ export async function main(ns) {
         log(ns, `Delays: ${JSON.stringify(delays)}`, debug);
         logSeparator(ns, debug);
         const cycleUsableTime = delays.total - CONFIG.timeStep;
-        const maxBatchesPerCycle = Math.floor(cycleUsableTime / (CONFIG.timeStep * 5)) + 1 || 1;
+        const maxBatchesPerCycle = Math.floor(cycleUsableTime / (CONFIG.timeStep * 5)) + 1;
         const batchesCount = Math.floor(maxThreads.total / HWGWBatchConfig.total);
         const batchesPerCycle = batchesCount >= maxBatchesPerCycle ? maxBatchesPerCycle : batchesCount;
         log(ns, `Batch count: ${batchesPerCycle}`, debug);
@@ -37,9 +37,15 @@ export async function main(ns) {
         const cycleDelay = delays.total >= totalDelayBetweenBatches ? delays.total - totalDelayBetweenBatches : 0;
         let prevIncome = 0;
         while (true) {
-            for (let i = 0; i < batchesPerCycle; i++) {
-                await ns.sleep(CONFIG.timeStep * 5);
-                executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
+            if (batchesPerCycle === 1) {
+                executeBatch(ns, serverName, HWGWBatchConfig, 1, debug);
+                await ns.sleep(delays.total + CONFIG.timeStep);
+            }
+            else {
+                for (let i = 0; i < batchesPerCycle; i++) {
+                    await ns.sleep(CONFIG.timeStep * 5);
+                    executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
+                }
             }
             const scriptIncome = ns.getScriptIncome('/batch/batch.js', 'home', ...ns.args);
             if (scriptIncome >= prevIncome) {
