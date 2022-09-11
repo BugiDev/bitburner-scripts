@@ -38,7 +38,7 @@ export async function main(ns) {
     logSeparator(ns, true);
     const serverGrowthRate = ns.getServerGrowth(serverName);
     const maxExecutableBatches = Math.floor((weakenTime + CONFIG.timeStep * 2) / (CONFIG.timeStep * 5));
-    const maxMoneyPerSecond = (serverMaxMoney / (weakenTime + CONFIG.timeStep * 2)) * maxExecutableBatches;
+    const maxMoneyPerSecond = (serverMaxMoney / 2 / (weakenTime + CONFIG.timeStep * 2)) * maxExecutableBatches;
     log(ns, bold(`Server growth rate: ${serverGrowthRate}`), true);
     log(ns, bold(`Max executable batches: ${maxExecutableBatches}`), true);
     log(ns, bold(`Max money per second: ${maxMoneyPerSecond}`), true);
