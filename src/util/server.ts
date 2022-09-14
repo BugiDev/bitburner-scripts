@@ -26,7 +26,7 @@ export async function maxOutServer(ns: NS, serverName: string, debug = false) {
     const growTime = ns.getGrowTime(serverName);
 
     if (growThreads >= freeTreadCount.total) {
-      log(ns, `Maxing out with ${growThreads} grow threads`, debug);
+      log(ns, `Maxing out with ${freeTreadCount.total} grow threads`, debug);
       executeRemoteGrow(ns, serverName, freeTreadCount.total, 1, 0);
       await ns.sleep(growTime + CONFIG.timeStep);
     } else {
