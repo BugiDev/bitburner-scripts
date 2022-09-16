@@ -1,0 +1,1 @@
+const getRight = (matrix: number[][]) => {};

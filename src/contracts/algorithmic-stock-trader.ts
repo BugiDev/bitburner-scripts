@@ -1,13 +1,27 @@
-export function solve(stocks: number[], _transactions: number): number {
-  const maxMoney = Math.max(
-    ...stocks.map((stock: number, index: number): number => {
-      return Math.max(
-        ...stocks.slice(index + 1).map((nextStock: number): number => {
-          return nextStock - stock;
-        })
-      );
-    })
-  );
+export function solve(stocks: number[]): number {
+  const allTransactions = stocks.reduce((totalTransactions: any, stock: number, index: number) => {
+    if (index === stocks.length - 1) {
+      return [...totalTransactions, { buy: stock, sell: 0, profit: 0 }];
+    }
 
-  return maxMoney > 0 ? maxMoney : 0;
+    const nextStocks = stocks.slice(index + 1);
+    const transactions = nextStocks.map((nextStock: number) => {
+      const profit = nextStock - stock > 0 ? nextStock - stock : 0;
+      return { buy: stock, sell: nextStock, profit };
+    });
+    return [...totalTransactions, ...transactions];
+  }, []);
+
+  const sortedTransactions = allTransactions.sort((a, b) => {
+    if (a.profit < b.profit) {
+      return 1;
+    }
+    if (a.profit > b.profit) {
+      return -1;
+    }
+    // a must be equal to b
+    return 0;
+  });
+
+  return sortedTransactions[0].profit;
 }
