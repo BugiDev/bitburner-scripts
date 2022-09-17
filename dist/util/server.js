@@ -1,7 +1,7 @@
 import { getMaxThreadServerInNetwork, getNetworkFreeThreadCount, getServerFreeThreadCount, } from '/util/thread';
 import { CONFIG } from '/config';
 import { getHackedServersInNetwork, walkWholeNetwork } from '/util/network';
-import { bold, log, logSeparator, red, printMoneyCalculation, printSecurityCalculation, } from './log';
+import { bold, log, logSeparator, red, printMoneyCalculation, printSecurityCalculation, } from '/util/log';
 import { executeGrowScript, executeWeakScript } from '/util/remote-exec';
 export async function maxOutServer(ns, serverName, debug = false) {
     ns.disableLog('ALL');

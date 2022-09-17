@@ -13,7 +13,7 @@ import {
   red,
   printMoneyCalculation,
   printSecurityCalculation,
-} from './log';
+} from '/util/log';
 import { executeGrowScript, executeWeakScript } from '/util/remote-exec';
 
 export async function maxOutServer(ns: NS, serverName: string, debug = false) {
