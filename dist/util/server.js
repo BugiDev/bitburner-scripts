@@ -34,7 +34,7 @@ export async function maxOutServer(ns, serverName, debug = false) {
                 ? maxThreadsOnServer.freeThreadCount
                 : weakDiffThreads;
             log(ns, `Reducing security lvl with ${weakThreads} weak threads`, debug);
-            executeRemoteWeak(ns, serverName, weakThreads, `max-out-${serverName}`, 0);
+            await executeRemoteWeak(ns, serverName, weakThreads, `max-out-${serverName}`, 0);
         }
         const moneyDifference = serverMaxMoney - serverCurrentMoney;
         // Increase money and reduce security
