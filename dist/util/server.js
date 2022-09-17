@@ -1,8 +1,8 @@
-import { getMaxThreadServerInNetwork, getNetworkFreeThreadCount, getServerFreeThreadCount, } from '/util/thread';
+import { getMaxThreadServerInNetwork, getNetworkFreeThreadCount } from '/util/thread';
 import { CONFIG } from '/config';
-import { getHackedServersInNetwork, walkWholeNetwork } from '/util/network';
+import { getHackedServersInNetwork } from '/util/network';
 import { bold, log, logSeparator, red, printMoneyCalculation, printSecurityCalculation, } from '/util/log';
-import { executeGrowScript, executeWeakScript } from '/util/remote-exec';
+import { executeRemoteGrow, executeRemoteWeak } from '/util/remote-exec';
 export async function maxOutServer(ns, serverName, debug = false) {
     ns.disableLog('ALL');
     log(ns, `Maxing out server: ${bold(serverName)}`, debug);
@@ -33,14 +33,8 @@ export async function maxOutServer(ns, serverName, debug = false) {
             const weakThreads = weakDiffThreads >= maxThreadsOnServer.freeThreadCount
                 ? maxThreadsOnServer.freeThreadCount
                 : weakDiffThreads;
-            const availableWeakenServers = await findServerToExecuteThreads(ns, weakThreads);
-            if (availableWeakenServers.length < 1) {
-                log(ns, red('No available server to execute weak!'), debug);
-                break;
-            }
-            const weakServer = availableWeakenServers[0];
             log(ns, `Reducing security lvl with ${weakThreads} weak threads`, debug);
-            executeWeakScript(ns, weakServer, serverName, weakThreads, `max-out-${serverName}`, 0);
+            executeRemoteWeak(ns, serverName, weakThreads, `max-out-${serverName}`, 0);
         }
         const moneyDifference = serverMaxMoney - serverCurrentMoney;
         // Increase money and reduce security
@@ -52,22 +46,10 @@ export async function maxOutServer(ns, serverName, debug = false) {
                 : maxGrowThreadsNeeded;
             const securityIncreaseForGrow = ns.growthAnalyzeSecurity(growThreads);
             const weakenThreadsNeededForGrow = Math.ceil(securityIncreaseForGrow / weakenAnalyze);
-            const availableGrowthServers = await findServerToExecuteThreads(ns, growThreads);
-            if (availableGrowthServers.length < 1) {
-                log(ns, red('No available server to execute growth!'), debug);
-                break;
-            }
-            const growServer = availableGrowthServers[0];
-            const availableWeakenGrowServers = await findServerToExecuteThreads(ns, weakenThreadsNeededForGrow);
-            if (availableWeakenGrowServers.length < 1) {
-                log(ns, red('No available server to execute weak!'), debug);
-                break;
-            }
-            const weakGrowServer = availableWeakenGrowServers[0];
             log(ns, `Increasing money with ${growThreads} grow threads`, debug);
             log(ns, `Reducing security for grow with ${weakenThreadsNeededForGrow} weak threads`, debug);
-            executeGrowScript(ns, growServer, serverName, growThreads, `max-out-${serverName}`, 0);
-            executeWeakScript(ns, weakGrowServer, serverName, weakenThreadsNeededForGrow, `max-out-${serverName}`, 0);
+            await executeRemoteGrow(ns, serverName, growThreads, `max-out-${serverName}`, 0);
+            await executeRemoteWeak(ns, serverName, weakenThreadsNeededForGrow, `max-out-${serverName}`, 0);
         }
         await ns.sleep(weakenTime + CONFIG.timeStep);
         serverCurrentSecLevel = ns.getServerSecurityLevel(serverName);
@@ -76,15 +58,7 @@ export async function maxOutServer(ns, serverName, debug = false) {
         printSecurityCalculation(ns, serverName, debug);
         logSeparator(ns, debug);
     }
-}
-async function findServerToExecuteThreads(ns, threadCount, debug = false) {
-    const servers = [];
-    await walkWholeNetwork(ns, (_callbackNS, serverName) => {
-        if (getServerFreeThreadCount(ns, serverName) >= threadCount) {
-            servers.push(serverName);
-        }
-    }, debug);
-    return servers;
+    log(ns, `Maxed out server ${bold(serverName)}!`, debug);
 }
 export async function maxOutAllHackedServers(ns, debug = false) {
     log(ns, 'Maxing out all hacked servers...', debug);

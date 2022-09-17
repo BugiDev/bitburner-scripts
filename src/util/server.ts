@@ -1,11 +1,7 @@
 import { NS } from '@ns';
-import {
-  getMaxThreadServerInNetwork,
-  getNetworkFreeThreadCount,
-  getServerFreeThreadCount,
-} from '/util/thread';
+import { getMaxThreadServerInNetwork, getNetworkFreeThreadCount } from '/util/thread';
 import { CONFIG } from '/config';
-import { getHackedServersInNetwork, walkWholeNetwork } from '/util/network';
+import { getHackedServersInNetwork } from '/util/network';
 import {
   bold,
   log,
@@ -14,7 +10,7 @@ import {
   printMoneyCalculation,
   printSecurityCalculation,
 } from '/util/log';
-import { executeGrowScript, executeWeakScript } from '/util/remote-exec';
+import { executeRemoteGrow, executeRemoteWeak } from '/util/remote-exec';
 
 export async function maxOutServer(ns: NS, serverName: string, debug = false) {
   ns.disableLog('ALL');
@@ -56,15 +52,8 @@ export async function maxOutServer(ns: NS, serverName: string, debug = false) {
           ? maxThreadsOnServer.freeThreadCount
           : weakDiffThreads;
 
-      const availableWeakenServers = await findServerToExecuteThreads(ns, weakThreads);
-      if (availableWeakenServers.length < 1) {
-        log(ns, red('No available server to execute weak!'), debug);
-        break;
-      }
-      const weakServer = availableWeakenServers[0];
-
       log(ns, `Reducing security lvl with ${weakThreads} weak threads`, debug);
-      executeWeakScript(ns, weakServer, serverName, weakThreads, `max-out-${serverName}`, 0);
+      executeRemoteWeak(ns, serverName, weakThreads, `max-out-${serverName}`, 0);
     }
 
     const moneyDifference = serverMaxMoney - serverCurrentMoney;
@@ -80,30 +69,12 @@ export async function maxOutServer(ns: NS, serverName: string, debug = false) {
       const securityIncreaseForGrow = ns.growthAnalyzeSecurity(growThreads);
       const weakenThreadsNeededForGrow = Math.ceil(securityIncreaseForGrow / weakenAnalyze);
 
-      const availableGrowthServers = await findServerToExecuteThreads(ns, growThreads);
-      if (availableGrowthServers.length < 1) {
-        log(ns, red('No available server to execute growth!'), debug);
-        break;
-      }
-      const growServer = availableGrowthServers[0];
-
-      const availableWeakenGrowServers = await findServerToExecuteThreads(
-        ns,
-        weakenThreadsNeededForGrow
-      );
-      if (availableWeakenGrowServers.length < 1) {
-        log(ns, red('No available server to execute weak!'), debug);
-        break;
-      }
-      const weakGrowServer = availableWeakenGrowServers[0];
-
       log(ns, `Increasing money with ${growThreads} grow threads`, debug);
       log(ns, `Reducing security for grow with ${weakenThreadsNeededForGrow} weak threads`, debug);
 
-      executeGrowScript(ns, growServer, serverName, growThreads, `max-out-${serverName}`, 0);
-      executeWeakScript(
+      await executeRemoteGrow(ns, serverName, growThreads, `max-out-${serverName}`, 0);
+      await executeRemoteWeak(
         ns,
-        weakGrowServer,
         serverName,
         weakenThreadsNeededForGrow,
         `max-out-${serverName}`,
@@ -120,24 +91,8 @@ export async function maxOutServer(ns: NS, serverName: string, debug = false) {
     printSecurityCalculation(ns, serverName, debug);
     logSeparator(ns, debug);
   }
-}
 
-async function findServerToExecuteThreads(
-  ns: NS,
-  threadCount: number,
-  debug = false
-): Promise<string[]> {
-  const servers: string[] = [];
-  await walkWholeNetwork(
-    ns,
-    (_callbackNS, serverName: string) => {
-      if (getServerFreeThreadCount(ns, serverName) >= threadCount) {
-        servers.push(serverName);
-      }
-    },
-    debug
-  );
-  return servers;
+  log(ns, `Maxed out server ${bold(serverName)}!`, debug);
 }
 
 export async function maxOutAllHackedServers(ns: NS, debug = false) {
