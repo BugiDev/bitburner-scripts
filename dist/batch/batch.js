@@ -38,12 +38,12 @@ export async function main(ns) {
         let prevIncome = 0;
         while (true) {
             if (batchesPerCycle === 1) {
-                executeBatch(ns, serverName, HWGWBatchConfig, 1, debug);
+                await executeBatch(ns, serverName, HWGWBatchConfig, 1, debug);
                 await ns.sleep(delays.total + CONFIG.timeStep * 2);
             }
             else {
                 for (let i = 0; i < batchesPerCycle; i++) {
-                    executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
+                    await executeBatch(ns, serverName, HWGWBatchConfig, i, debug);
                     await ns.sleep(CONFIG.timeStep * 3);
                 }
             }
@@ -60,14 +60,14 @@ export async function main(ns) {
         }
     }
 }
-function executeBatch(ns, targetServer, HWGWBatchConfig, id, debug = false) {
+async function executeBatch(ns, targetServer, HWGWBatchConfig, id, debug = false) {
     const delays = calculateDelays(ns, targetServer);
     const freeThreads = getNetworkFreeThreadCount(ns);
     if (freeThreads.total - HWGWBatchConfig.total >= 0) {
-        executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakHack, `${targetServer}-weak-hack-${id}`, delays.weakHack);
-        executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakGrow, `${targetServer}-weak-grow-${id}`, delays.weakGrow);
-        executeRemoteGrow(ns, targetServer, HWGWBatchConfig.grow, `${targetServer}-grow-${id}`, delays.grow);
-        executeRemoteHack(ns, targetServer, HWGWBatchConfig.hack, `${targetServer}-hack-${id}`, delays.hack);
+        await executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakHack, `${targetServer}-weak-hack-${id}`, delays.weakHack);
+        await executeRemoteWeak(ns, targetServer, HWGWBatchConfig.weakGrow, `${targetServer}-weak-grow-${id}`, delays.weakGrow);
+        await executeRemoteGrow(ns, targetServer, HWGWBatchConfig.grow, `${targetServer}-grow-${id}`, delays.grow);
+        await executeRemoteHack(ns, targetServer, HWGWBatchConfig.hack, `${targetServer}-hack-${id}`, delays.hack);
     }
     else {
         log(ns, red(`No enough free threads, skipping batch ${id}. Free vs needed: ${freeThreads.total} vs ${HWGWBatchConfig.total}`), debug);
@@ -109,22 +109,22 @@ async function getHWGWBatchConfig(ns, serverName, debug = false) {
         log(ns, 'No enough threads on home to calculate hwgw loop of a server!', debug);
         return null;
     }
-    executeRemoteHack(ns, serverName, threadsToHackHalf, 1, 0);
+    await executeRemoteHack(ns, serverName, threadsToHackHalf, 1, 0);
     await ns.sleep(hackTime + CONFIG.timeStep);
     const securityIncreaseForHack = ns.hackAnalyzeSecurity(threadsToHackHalf, serverName);
     const weakenAnalyze = ns.weakenAnalyze(1);
     const weakenThreadsNeededForHack = Math.ceil(securityIncreaseForHack / weakenAnalyze);
-    executeRemoteWeak(ns, serverName, weakenThreadsNeededForHack, 1, 0);
+    await executeRemoteWeak(ns, serverName, weakenThreadsNeededForHack, 1, 0);
     await ns.sleep(weakenTime + CONFIG.timeStep);
     // Adding + 10% because of bad calculation
     // const threadsToGrowHalf =
     //   Math.ceil(ns.growthAnalyze(serverName, 2)) + Math.ceil(ns.growthAnalyze(serverName, 2) * 0.1);
     const threadsToGrowHalf = Math.ceil(ns.growthAnalyze(serverName, 2));
-    executeRemoteGrow(ns, serverName, threadsToGrowHalf, 1, 0);
+    await executeRemoteGrow(ns, serverName, threadsToGrowHalf, 1, 0);
     await ns.sleep(growTime + CONFIG.timeStep);
     const securityIncreaseForGrow = ns.growthAnalyzeSecurity(threadsToGrowHalf);
     const weakenThreadsNeededForGrow = Math.ceil(securityIncreaseForGrow / weakenAnalyze);
-    executeRemoteWeak(ns, serverName, weakenThreadsNeededForGrow, 1, 0);
+    await executeRemoteWeak(ns, serverName, weakenThreadsNeededForGrow, 1, 0);
     await ns.sleep(weakenTime + CONFIG.timeStep);
     return {
         hack: threadsToHackHalf,
