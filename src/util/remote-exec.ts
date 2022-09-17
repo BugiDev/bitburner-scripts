@@ -3,6 +3,21 @@ import { getNetworkFreeThreadCount, ThreadCount } from '/util/thread';
 import { CONFIG } from '/config';
 import { log, red } from '/util';
 
+function executeScript(
+  ns: NS,
+  scriptPath: string,
+  hostServer: string,
+  targetServer: string,
+  threadCount: number,
+  id: string | number,
+  delay: number
+) {
+  const pid = ns.exec(scriptPath, hostServer, threadCount, targetServer, threadCount, delay, id);
+  if (pid === 0) {
+    log(ns, red(`Could not execute: ${scriptPath} on: ${hostServer} for target: ${targetServer}!`));
+  }
+}
+
 function executeRemoteScript(
   ns: NS,
   scriptPath: string,
@@ -91,4 +106,37 @@ export function executeRemoteGrow(
   delay: number
 ) {
   executeRemoteScript(ns, CONFIG.loopMalwareGrow, targetServer, threadCount, id, delay);
+}
+
+export function executeWeakScript(
+  ns: NS,
+  hostServer: string,
+  targetServer: string,
+  threadCount: number,
+  id: string | number,
+  delay: number
+) {
+  executeScript(ns, CONFIG.loopMalwareWeaken, hostServer, targetServer, threadCount, id, delay);
+}
+
+export function executeHackScript(
+  ns: NS,
+  hostServer: string,
+  targetServer: string,
+  threadCount: number,
+  id: string | number,
+  delay: number
+) {
+  executeScript(ns, CONFIG.loopMalwareHack, hostServer, targetServer, threadCount, id, delay);
+}
+
+export function executeGrowScript(
+  ns: NS,
+  hostServer: string,
+  targetServer: string,
+  threadCount: number,
+  id: string | number,
+  delay: number
+) {
+  executeScript(ns, CONFIG.loopMalwareGrow, hostServer, targetServer, threadCount, id, delay);
 }

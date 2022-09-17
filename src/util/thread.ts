@@ -86,3 +86,21 @@ export function getNetworkFreeServers(ns: NS, startServer: string, targetServer:
 
   return [];
 }
+
+export interface MaxThreadServer {
+  name: string;
+  freeThreadCount: number;
+}
+
+export function getMaxThreadServerInNetwork(ns: NS): MaxThreadServer | null {
+  const freeTreadCount = getNetworkFreeThreadCount(ns);
+
+  const entries = Object.entries(freeTreadCount.threads);
+  return entries.reduce((reduced: MaxThreadServer | null, entry): MaxThreadServer | null => {
+    const [key, value] = entry;
+    if (!reduced || reduced.freeThreadCount < value) {
+      return { name: key, freeThreadCount: value };
+    }
+    return reduced;
+  }, null);
+}

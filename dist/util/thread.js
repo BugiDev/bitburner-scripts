@@ -62,3 +62,14 @@ export function getNetworkFreeServers(ns, startServer, targetServer) {
     }
     return [];
 }
+export function getMaxThreadServerInNetwork(ns) {
+    const freeTreadCount = getNetworkFreeThreadCount(ns);
+    const entries = Object.entries(freeTreadCount.threads);
+    return entries.reduce((reduced, entry) => {
+        const [key, value] = entry;
+        if (!reduced || reduced.freeThreadCount < value) {
+            return { name: key, freeThreadCount: value };
+        }
+        return reduced;
+    }, null);
+}

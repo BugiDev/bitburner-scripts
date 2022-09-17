@@ -1,5 +1,3 @@
-import { maxOutServer } from '/util/server';
-import { log, logSeparator } from '/util';
 export async function walkNetwork(ns, startServer, targetServer, callback, debug = false) {
     const servers = ns.scan(targetServer).filter((server) => server !== startServer);
     if (servers.length > 0) {
@@ -53,23 +51,4 @@ export async function getHackedServersWithNoBackdoorInNetwork(ns, debug = false)
         }
     }, debug);
     return servers;
-}
-export async function maxOutAllHackedServers(ns, debug = false) {
-    log(ns, 'Maxing out all hacked servers...', debug);
-    logSeparator(ns, debug);
-    const hackedServers = await getHackedServersInNetwork(ns, debug);
-    const sortedServers = hackedServers.sort((a, b) => {
-        if (a.requiredHackingSkill < b.requiredHackingSkill) {
-            return -1;
-        }
-        if (a.requiredHackingSkill > b.requiredHackingSkill) {
-            return 1;
-        }
-        return 0;
-    });
-    for (const server of sortedServers) {
-        await maxOutServer(ns, server.hostname, debug);
-    }
-    log(ns, 'Maxed out all hacked servers!', debug);
-    logSeparator(ns, debug);
 }
