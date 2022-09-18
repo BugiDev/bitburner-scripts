@@ -52,7 +52,7 @@ export async function main(ns) {
         log(ns, bold(`Hack ratio: ${batchHWGWConfig.hackRatio}`), true);
     }
     else {
-        log(ns, red(`Server ${boldRed(serverName)} can't be batched!`));
+        log(ns, red(`Server ${boldRed(serverName)} can't be batched!`), true);
     }
     const serverGrowthRate = ns.getServerGrowth(serverName);
     log(ns, bold(`Server growth rate: ${serverGrowthRate}`), true);
