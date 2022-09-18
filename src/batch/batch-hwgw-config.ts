@@ -59,7 +59,7 @@ export function getBatchHWGWConfig(
   const weakenThreadsNeededForHack = Math.ceil(securityIncreaseForHack / weakenAnalyze);
 
   const threadsToGrow = Math.ceil(
-    ns.growthAnalyze(serverName, serverMaxMoney / (serverMaxMoney - hackAmount))
+    ns.growthAnalyze(serverName, Math.ceil(serverMaxMoney / (serverMaxMoney - hackAmount)))
   );
 
   const securityIncreaseForGrow = ns.growthAnalyzeSecurity(threadsToGrow);
