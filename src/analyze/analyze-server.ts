@@ -1,7 +1,8 @@
 import { NS, AutocompleteData } from '@ns';
-import { bold, formatMoney, log, logSeparator } from '/util/log';
+import { bold, boldRed, formatMoney, log, logSeparator, red } from '/util/log';
 import { CONFIG } from '/config';
 import { validateServerName } from '/util/validation';
+import { getBatchHWGWConfig } from '/batch/batch-hwgw-config';
 
 export function autocomplete(data: AutocompleteData) {
   return [...data.servers]; // This script autocompletes the list of servers.
@@ -54,17 +55,23 @@ export async function main(ns: NS) {
   log(ns, `Server hack chance: ${hackChance}`, true);
   logSeparator(ns, true);
 
-  const serverGrowthRate = ns.getServerGrowth(serverName);
-  const cycleUsableTime = weakenTime - CONFIG.timeStep;
-  const maxExecutableBatches = Math.floor(cycleUsableTime / (CONFIG.timeStep * 4)) + 1;
-  const totalCycleTime =
-    maxExecutableBatches > 1
-      ? (cycleUsableTime + CONFIG.timeStep * 3 * maxExecutableBatches) / 1000
-      : (cycleUsableTime + CONFIG.timeStep * 4) / 1000;
-  const maxMoneyPerSecond = (serverMaxMoney / 2 / totalCycleTime) * maxExecutableBatches;
+  const batchHWGWConfig = getBatchHWGWConfig(ns, serverName);
+  if (batchHWGWConfig) {
+    const cycleUsableTime = weakenTime - CONFIG.timeStep;
+    const maxExecutableBatches = batchHWGWConfig?.batches?.length;
+    const totalCycleTime =
+      maxExecutableBatches > 1
+        ? (cycleUsableTime + CONFIG.timeStep * 3 * maxExecutableBatches) / 1000
+        : (cycleUsableTime + CONFIG.timeStep * 4) / 1000;
+    const maxMoneyPerSecond = (serverMaxMoney / 2 / totalCycleTime) * maxExecutableBatches;
+    log(ns, bold(`Max executable batches: ${maxExecutableBatches}`), true);
+    log(ns, bold(`Max money per second: ${formatMoney(ns, maxMoneyPerSecond)}`), true);
+    log(ns, bold(`Hack ratio: ${batchHWGWConfig.hackRatio}`), true);
+  } else {
+    log(ns, red(`Server ${boldRed(serverName)} can't be batched!`));
+  }
 
+  const serverGrowthRate = ns.getServerGrowth(serverName);
   log(ns, bold(`Server growth rate: ${serverGrowthRate}`), true);
-  log(ns, bold(`Max executable batches: ${maxExecutableBatches}`), true);
-  log(ns, bold(`Max money per second: ${formatMoney(ns, maxMoneyPerSecond)}`), true);
   logSeparator(ns, true);
 }
