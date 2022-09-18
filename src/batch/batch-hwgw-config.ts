@@ -43,7 +43,7 @@ export function getBatchHWGWConfig(
   serverName: string,
   hackRatio = 0.9
 ): BatchHWGWConfig | null {
-  if (hackRatio === 0) {
+  if (hackRatio < 0.1) {
     return null;
   }
 

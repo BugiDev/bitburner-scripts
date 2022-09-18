@@ -18,7 +18,7 @@ function getServerMaxBatches(ns, serverName) {
     return Math.floor(cycleUsableTime / (CONFIG.timeStep * 4)) + 1;
 }
 export function getBatchHWGWConfig(ns, serverName, hackRatio = 0.9) {
-    if (hackRatio === 0) {
+    if (hackRatio < 0.1) {
         return null;
     }
     const maxBatches = getServerMaxBatches(ns, serverName);

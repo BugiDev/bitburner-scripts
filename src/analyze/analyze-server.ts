@@ -68,7 +68,7 @@ export async function main(ns: NS) {
     log(ns, bold(`Max money per second: ${formatMoney(ns, maxMoneyPerSecond)}`), true);
     log(ns, bold(`Hack ratio: ${batchHWGWConfig.hackRatio}`), true);
   } else {
-    log(ns, red(`Server ${boldRed(serverName)} can't be batched!`));
+    log(ns, red(`Server ${boldRed(serverName)} can't be batched!`), true);
   }
 
   const serverGrowthRate = ns.getServerGrowth(serverName);
