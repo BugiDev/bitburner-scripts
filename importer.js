@@ -49,6 +49,7 @@ const IMPORT_FILES = [
 
   // BATCH
   'batch/batch.js',
+  'batch/batch-hwgw-config.js',
 ];
 
 function getRemoteFileURL(fileName) {
