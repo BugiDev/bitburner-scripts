@@ -17,10 +17,25 @@ function getServerMaxBatches(ns, serverName) {
     const cycleUsableTime = weakenTime - CONFIG.timeStep;
     return Math.floor(cycleUsableTime / (CONFIG.timeStep * 4)) + 1;
 }
-export function getBatchHWGWConfig(ns, serverName, hackRatio = 0.9) {
-    if (hackRatio < 0.1) {
+export function getBatchHWGWConfig(ns, serverName) {
+    const batchConfigs = [];
+    for (let i = 0.9; i >= 0.1; i - 0.1) {
+        const config = calculateBatchHWGWConfig(ns, serverName, i);
+        if (config) {
+            batchConfigs.push(config);
+        }
+    }
+    if (batchConfigs.length === 0) {
         return null;
     }
+    return batchConfigs.reduce((reducedConfig, config) => {
+        if (config.hackAmount > reducedConfig.hackAmount) {
+            return config;
+        }
+        return reducedConfig;
+    }, { hackAmount: 0 });
+}
+function calculateBatchHWGWConfig(ns, serverName, hackRatio = 0.9) {
     const maxBatches = getServerMaxBatches(ns, serverName);
     const serverMaxMoney = ns.getServerMaxMoney(serverName);
     const hackAmount = serverMaxMoney * hackRatio;
@@ -96,13 +111,12 @@ export function getBatchHWGWConfig(ns, serverName, hackRatio = 0.9) {
             });
         }
     }
-    if (batchConfig.length > 0) {
-        return {
-            batches: batchConfig,
-            hackRatio,
-        };
+    if (batchConfig.length === 0) {
+        return null;
     }
-    else {
-        return getBatchHWGWConfig(ns, serverName, hackRatio - 0.1);
-    }
+    return {
+        batches: batchConfig,
+        hackRatio,
+        hackAmount,
+    };
 }

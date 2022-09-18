@@ -35,18 +35,36 @@ export interface SingleBatchHWGWConfig {
 
 export interface BatchHWGWConfig {
   batches: SingleBatchHWGWConfig[];
+  hackAmount: number;
   hackRatio: number;
 }
 
-export function getBatchHWGWConfig(
-  ns: NS,
-  serverName: string,
-  hackRatio = 0.9
-): BatchHWGWConfig | null {
-  if (hackRatio < 0.1) {
+export function getBatchHWGWConfig(ns: NS, serverName: string): BatchHWGWConfig | null {
+  const batchConfigs: Array<BatchHWGWConfig> = [];
+
+  for (let i = 0.9; i >= 0.1; i - 0.1) {
+    const config = calculateBatchHWGWConfig(ns, serverName, i);
+    if (config) {
+      batchConfigs.push(config);
+    }
+  }
+
+  if (batchConfigs.length === 0) {
     return null;
   }
 
+  return batchConfigs.reduce(
+    (reducedConfig: BatchHWGWConfig, config: BatchHWGWConfig) => {
+      if (config.hackAmount > reducedConfig.hackAmount) {
+        return config;
+      }
+      return reducedConfig;
+    },
+    { hackAmount: 0 } as BatchHWGWConfig
+  );
+}
+
+function calculateBatchHWGWConfig(ns: NS, serverName: string, hackRatio = 0.9) {
   const maxBatches = getServerMaxBatches(ns, serverName);
 
   const serverMaxMoney = ns.getServerMaxMoney(serverName);
@@ -142,12 +160,13 @@ export function getBatchHWGWConfig(
     }
   }
 
-  if (batchConfig.length > 0) {
-    return {
-      batches: batchConfig,
-      hackRatio,
-    };
-  } else {
-    return getBatchHWGWConfig(ns, serverName, hackRatio - 0.1);
+  if (batchConfig.length === 0) {
+    return null;
   }
+
+  return {
+    batches: batchConfig,
+    hackRatio,
+    hackAmount,
+  };
 }
