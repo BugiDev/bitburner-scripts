@@ -1,5 +1,5 @@
 import { getNotHackedServersInNetwork } from '/util/network';
-import { log, logSeparator, bold } from '/util';
+import { log, logSeparator, bold } from '/util/log';
 export async function main(ns) {
     const notHackedServers = await getNotHackedServersInNetwork(ns, true);
     if (notHackedServers.length === 0) {

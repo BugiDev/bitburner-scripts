@@ -27,13 +27,15 @@ export function bold(text) {
 export function formatMoney(ns, money) {
     return ns.nFormat(money, '($ 0.00 a)');
 }
-export function printMoneyCalculation(ns, serverName, debug = false) {
+export function printMoneyCalculation(ns, serverName, debug = false, boldText = false) {
     const serverMaxMoney = ns.getServerMaxMoney(serverName);
     const serverCurrentMoney = ns.getServerMoneyAvailable(serverName);
-    log(ns, `Money (current / max): ${formatMoney(ns, serverCurrentMoney)}/${formatMoney(ns, serverMaxMoney)}`, debug);
+    const text = `Money (current / max): ${formatMoney(ns, serverCurrentMoney)}/${formatMoney(ns, serverMaxMoney)}`;
+    log(ns, boldText ? bold(text) : text, debug);
 }
-export function printSecurityCalculation(ns, serverName, debug = false) {
+export function printSecurityCalculation(ns, serverName, debug = false, boldText = false) {
     const serverMinSecLevel = ns.getServerMinSecurityLevel(serverName);
     const serverCurrentSecLevel = ns.getServerSecurityLevel(serverName);
-    log(ns, `Security (current / min): ${serverCurrentSecLevel}/${serverMinSecLevel}`, debug);
+    const text = `Security (current / min): ${serverCurrentSecLevel}/${serverMinSecLevel}`;
+    log(ns, boldText ? bold(text) : text, debug);
 }

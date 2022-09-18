@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { getHackedServersWithNoBackdoorInNetwork } from '/util/network';
-import { log, logSeparator, bold } from '/util';
+import { log, logSeparator, bold } from '/util/log';
 
 export async function main(ns: NS): Promise<void> {
   const serversToBackdoor = await getHackedServersWithNoBackdoorInNetwork(ns, true);

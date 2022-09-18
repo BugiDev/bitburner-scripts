@@ -1,7 +1,7 @@
 import { NS } from '@ns';
 import { getServerFreeThreadCount } from '/util/thread';
 import { CONFIG } from '/config';
-import { log, red } from '/util';
+import { log, red } from '/util/log';
 import { walkWholeNetwork } from '/util/network';
 
 function executeScript(

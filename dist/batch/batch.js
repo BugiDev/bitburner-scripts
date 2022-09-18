@@ -1,13 +1,18 @@
-import { bold, boldRed, formatMoney, log, logSeparator, red } from '/util';
+import { bold, boldRed, formatMoney, log, logSeparator, red } from '/util/log';
 import { maxOutServer } from '/util/server';
 import { getNetworkMaxThreadCount, getNetworkFreeThreadCount, getServerFreeThreadCount, } from '/util/thread';
 import { executeRemoteGrow, executeRemoteHack, executeRemoteWeak } from '/util/remote-exec';
 import { hasFormulas } from '/util/home';
 import { CONFIG } from '/config';
+import { validateServerName } from '/util/validation';
+export function autocomplete(data) {
+    return [...data.servers]; // This script autocompletes the list of servers.
+}
 /** @param {NS} ns */
 export async function main(ns) {
     const serverName = ns.args[0];
     const debug = (ns.args[1] || false);
+    validateServerName(serverName);
     if (!debug) {
         ns.disableLog('ALL');
         ns.tail();

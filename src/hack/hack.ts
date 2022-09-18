@@ -1,9 +1,11 @@
 import { NS } from '@ns';
-import { log } from '/util';
+import { log } from '/util/log';
+import { validateServerName } from '/util/validation';
 
 /** @param {NS} ns */
 export async function main(ns: NS): Promise<void> {
   const serverName = ns.args[0] as string;
+  validateServerName(serverName);
   hackServer(ns, serverName);
 }
 

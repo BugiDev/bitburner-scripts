@@ -1,5 +1,10 @@
-import { NS } from '@ns';
-import { log, logSeparator, printMoneyCalculation, printSecurityCalculation } from '/util/log';
+import { AutocompleteData, NS } from '@ns';
+import { logSeparator, printMoneyCalculation, printSecurityCalculation } from '/util/log';
+import { validateServerName } from '/util/validation';
+
+export function autocomplete(data: AutocompleteData) {
+  return [...data.servers]; // This script autocompletes the list of servers.
+}
 
 /** @param {NS} ns
  * @param debug
@@ -7,6 +12,8 @@ import { log, logSeparator, printMoneyCalculation, printSecurityCalculation } fr
 export async function main(ns: NS, debug = false) {
   ns.disableLog('ALL');
   const serverName = ns.args[0] as string;
+  validateServerName(serverName);
+
   ns.tail();
 
   let prevServerCurrentMoney = 0;
@@ -20,17 +27,14 @@ export async function main(ns: NS, debug = false) {
       prevServerCurrentMoney !== serverCurrentMoney ||
       prevServerCurrentSecLevel !== serverCurrentSecLevel
     ) {
+      printMoneyCalculation(ns, serverName, debug, prevServerCurrentMoney !== serverCurrentMoney);
+      printSecurityCalculation(
+        ns,
+        serverName,
+        debug,
+        prevServerCurrentSecLevel !== serverCurrentSecLevel
+      );
       logSeparator(ns, debug);
-
-      if (prevServerCurrentMoney !== serverCurrentMoney) {
-        log(ns, 'Money change', debug);
-        printMoneyCalculation(ns, serverName, debug);
-      }
-
-      if (prevServerCurrentSecLevel !== serverCurrentSecLevel) {
-        log(ns, 'Security change', debug);
-        printSecurityCalculation(ns, serverName, debug);
-      }
     }
     await ns.sleep(100);
     prevServerCurrentMoney = serverCurrentMoney;

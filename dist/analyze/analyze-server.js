@@ -1,11 +1,13 @@
-import { bold, formatMoney, log, logSeparator } from '/util';
+import { bold, formatMoney, log, logSeparator } from '/util/log';
 import { CONFIG } from '/config';
+import { validateServerName } from '/util/validation';
+export function autocomplete(data) {
+    return [...data.servers]; // This script autocompletes the list of servers.
+}
 /** @param {NS} ns */
 export async function main(ns) {
     const serverName = ns.args[0];
-    if (!serverName) {
-        log(ns, 'No server name provided!', true);
-    }
+    validateServerName(serverName);
     log(ns, `Analyzing server: ${serverName}...`, true);
     const serverRequiredHackingLevel = ns.getServerRequiredHackingLevel(serverName);
     const serverMinSecLevel = ns.getServerMinSecurityLevel(serverName);

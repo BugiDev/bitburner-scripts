@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { walkWholeNetwork } from '/util/network';
-import { log } from '/util';
+import { log } from '/util/log';
 
 /** @param {NS} ns */
 export async function main(ns: NS): Promise<void> {

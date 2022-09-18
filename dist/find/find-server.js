@@ -1,9 +1,16 @@
+import { log } from '/util/log';
+import { validateServerName } from '/util/validation';
+export function autocomplete(data) {
+    return [...data.servers]; // This script autocompletes the list of servers.
+}
 /** @param {NS} ns */
 export async function main(ns) {
     const serverName = ns.args[0];
+    const debug = (ns.args[1] || true);
+    validateServerName(serverName);
     const serverPaths = findServer(ns, 'home', 'home');
-    ns.tprint(serverPaths[serverName]);
-    ns.tprint('Copied path to clipboard!');
+    log(ns, serverPaths[serverName], debug);
+    log(ns, 'Copied path to clipboard!', debug);
     await navigator.clipboard.writeText(serverPaths[serverName]);
 }
 export function findServer(ns, startServer, nextServer, parentPath = '') {

@@ -1,15 +1,24 @@
-import { NS } from '@ns';
+import { AutocompleteData, NS } from '@ns';
+import { log } from '/util/log';
+import { validateServerName } from '/util/validation';
 
 interface ServerPaths {
   [key: string]: string;
 }
 
+export function autocomplete(data: AutocompleteData) {
+  return [...data.servers]; // This script autocompletes the list of servers.
+}
+
 /** @param {NS} ns */
 export async function main(ns: NS) {
   const serverName = ns.args[0] as string;
+  const debug = (ns.args[1] || true) as boolean;
+  validateServerName(serverName);
+
   const serverPaths: ServerPaths = findServer(ns, 'home', 'home');
-  ns.tprint(serverPaths[serverName]);
-  ns.tprint('Copied path to clipboard!');
+  log(ns, serverPaths[serverName], debug);
+  log(ns, 'Copied path to clipboard!', debug);
   await navigator.clipboard.writeText(serverPaths[serverName]);
 }
 

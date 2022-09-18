@@ -1,14 +1,17 @@
-import { NS } from '@ns';
-import { bold, formatMoney, log, logSeparator } from '/util';
+import { NS, AutocompleteData } from '@ns';
+import { bold, formatMoney, log, logSeparator } from '/util/log';
 import { CONFIG } from '/config';
+import { validateServerName } from '/util/validation';
+
+export function autocomplete(data: AutocompleteData) {
+  return [...data.servers]; // This script autocompletes the list of servers.
+}
 
 /** @param {NS} ns */
 export async function main(ns: NS) {
   const serverName = ns.args[0] as string;
 
-  if (!serverName) {
-    log(ns, 'No server name provided!', true);
-  }
+  validateServerName(serverName);
 
   log(ns, `Analyzing server: ${serverName}...`, true);
 

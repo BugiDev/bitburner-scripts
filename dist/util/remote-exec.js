@@ -1,6 +1,6 @@
 import { getServerFreeThreadCount } from '/util/thread';
 import { CONFIG } from '/config';
-import { log, red } from '/util';
+import { log, red } from '/util/log';
 import { walkWholeNetwork } from '/util/network';
 function executeScript(ns, scriptPath, hostServer, targetServer, threadCount, id, delay) {
     const pid = ns.exec(scriptPath, hostServer, threadCount, targetServer, threadCount, delay, id);

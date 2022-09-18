@@ -1,5 +1,5 @@
-import { NS } from '@ns';
-import { bold, boldRed, formatMoney, log, logSeparator, red } from '/util';
+import { AutocompleteData, NS } from '@ns';
+import { bold, boldRed, formatMoney, log, logSeparator, red } from '/util/log';
 import { maxOutServer } from '/util/server';
 import {
   getNetworkMaxThreadCount,
@@ -9,11 +9,19 @@ import {
 import { executeRemoteGrow, executeRemoteHack, executeRemoteWeak } from '/util/remote-exec';
 import { hasFormulas } from '/util/home';
 import { CONFIG } from '/config';
+import { validateServerName } from '/util/validation';
+
+export function autocomplete(data: AutocompleteData) {
+  return [...data.servers]; // This script autocompletes the list of servers.
+}
 
 /** @param {NS} ns */
 export async function main(ns: NS) {
   const serverName = ns.args[0] as string;
   const debug = (ns.args[1] || false) as boolean;
+
+  validateServerName(serverName);
+
   if (!debug) {
     ns.disableLog('ALL');
     ns.tail();

@@ -3,7 +3,6 @@ export const IMPORT_CONFIG = {
 };
 
 const IMPORT_FILES = [
-  'util.js',
   'config.js',
   'pwn.js',
   'kill-whole-network.js',
@@ -26,6 +25,7 @@ const IMPORT_FILES = [
   'util/remote-exec.js',
   'util/home.js',
   'util/log.js',
+  'util/validation.js',
 
   // HACK
   'hack/hack-all.js',

@@ -1,7 +1,9 @@
-import { log } from '/util';
+import { log } from '/util/log';
+import { validateServerName } from '/util/validation';
 /** @param {NS} ns */
 export async function main(ns) {
     const serverName = ns.args[0];
+    validateServerName(serverName);
     hackServer(ns, serverName);
 }
 export function hackServer(ns, serverName) {

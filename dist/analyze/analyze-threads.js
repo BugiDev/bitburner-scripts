@@ -1,4 +1,4 @@
-import { log, logSeparator } from '/util';
+import { log, logSeparator } from '/util/log';
 import { maxOutServer } from '/util/server';
 import { CONFIG } from '/config';
 import { getNetworkMaxThreadCount, getServerFreeThreadCount } from '/util/thread';

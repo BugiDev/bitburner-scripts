@@ -1,5 +1,5 @@
 import { getHackedServersWithNoBackdoorInNetwork } from '/util/network';
-import { log, logSeparator, bold } from '/util';
+import { log, logSeparator, bold } from '/util/log';
 export async function main(ns) {
     const serversToBackdoor = await getHackedServersWithNoBackdoorInNetwork(ns, true);
     if (serversToBackdoor.length === 0) {

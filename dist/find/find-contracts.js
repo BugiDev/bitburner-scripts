@@ -1,5 +1,5 @@
 import { walkWholeNetwork } from '/util/network';
-import { log } from '/util';
+import { log } from '/util/log';
 /** @param {NS} ns */
 export async function main(ns) {
     const debug = (ns.args[0] || false);

@@ -1,89 +1,96 @@
 import { NS } from '@ns';
-import { tPrint } from '/util';
 import { CONFIG } from '/config';
 import { installMalware } from '/malware/install-malware';
+import { bold, log } from '/util/log';
 
 const DEFAULT_MYSERVER_LEVEL = 2;
 
 /** @param {NS} ns */
 export async function main(ns: NS) {
-  const timer = (ns.args[0] || 5000) as number;
-  const silent = (ns.args[1] || false) as boolean;
+  const timer = (ns.args[0] || 1000) as number;
+  const debug = (ns.args[1] || false) as boolean;
+  ns.tail();
+
   while (true) {
-    await ns.sleep(timer);
-    await autoPurchaseServer(ns, silent);
+    try {
+      await autoPurchaseServer(ns, debug);
+      await ns.sleep(timer);
+    } catch (error) {
+      log(ns, 'No more money to buy servers!', debug);
+      break;
+    }
   }
+
+  await ns.sleep(2000);
+  ns.closeTail();
+}
+
+async function purchaseServer(ns: NS, ram: number, debug = false) {
+  const purchasedServer = ns.purchaseServer(CONFIG.myServerPrefix, ram);
+  log(ns, `Purchased server: ${bold(purchasedServer)}`, debug);
+  await installMalware(ns, purchasedServer, debug);
 }
 
 /**
  * @param {NS} ns
- * @param silent
+ * @param debug
  */
-async function autoPurchaseServer(ns: NS, silent = false) {
+async function autoPurchaseServer(ns: NS, debug = false) {
   const purchasedServers = ns.getPurchasedServers();
   const purchaseServerLimit = ns.getPurchasedServerLimit();
 
   if (purchasedServers.length === 0) {
-    const purchasedServer = ns.purchaseServer(CONFIG.myServerPrefix, Math.pow(2, 1));
-    tPrint(ns, `Purchased server: ${purchasedServer}`, silent);
-    await installMalware(ns, purchasedServer, !silent);
+    await purchaseServer(ns, Math.pow(2, DEFAULT_MYSERVER_LEVEL), debug);
     return;
   }
 
-  const nextServerLevel = getNextServerLevel(ns, silent);
-  tPrint(ns, `Next server level: ${nextServerLevel}`, silent);
+  const nextServerLevel = getNextServerLevel(ns);
+  log(ns, `Next server level: ${nextServerLevel}`, debug);
 
   const currentMoney = ns.getPlayer().money;
   const nextServerCost = getNextServerCost(ns, nextServerLevel);
-  tPrint(ns, `Next server costs: ${nextServerCost}`, silent);
+  log(ns, `Next server costs: ${nextServerCost}`, debug);
 
   if (currentMoney > nextServerCost) {
     if (purchasedServers.length >= purchaseServerLimit) {
       ns.killall(purchasedServers[0]);
       ns.deleteServer(purchasedServers[0]);
     }
-    const purchasedServer = ns.purchaseServer(CONFIG.myServerPrefix, Math.pow(2, nextServerLevel));
-    tPrint(ns, `Purchased server: ${purchasedServer}`, silent);
-    await installMalware(ns, purchasedServer, !silent);
+    await purchaseServer(ns, Math.pow(2, nextServerLevel), debug);
   } else {
-    tPrint(ns, 'No enough money!', silent);
+    throw new Error('No more money to buy servers!');
   }
 }
 
 /**
  * @param {NS} ns
- * @param silent
+ * @param debug
  */
-function getNextServerLevel(ns: NS, silent = false) {
+function getNextServerLevel(ns: NS) {
   const purchasedServers = ns.getPurchasedServers();
   const purchaseServerLimit = ns.getPurchasedServerLimit();
-  tPrint(ns, `purchased servers: ${JSON.stringify(purchasedServers)}`, silent);
-  if (purchasedServers.length > 0) {
-    const maxServerLevel = purchasedServers.reduce((previousLevel, server) => {
-      tPrint(ns, `Running calc for server: ${server}`, silent);
-      const serverMaxRam = ns.getServerMaxRam(server);
-      const serverLevel = Math.log(serverMaxRam) / Math.log(2);
-      tPrint(
-        ns,
-        `Max RAM for server: ${server} is: ${serverMaxRam} with level: ${serverLevel}`,
-        silent
-      );
-      return serverLevel >= previousLevel ? serverLevel : previousLevel;
-    }, DEFAULT_MYSERVER_LEVEL);
 
-    if (purchasedServers.length + 1 >= purchaseServerLimit) {
-      const firstServerMaxRam = ns.getServerMaxRam(purchasedServers[0]);
-      const firstServerLevel = Math.log(firstServerMaxRam) / Math.log(2);
-      if (firstServerLevel !== maxServerLevel) {
-        return firstServerLevel + 1;
-      } else {
-        return maxServerLevel + 1;
-      }
-    } else {
-      return maxServerLevel;
-    }
+  if (purchasedServers.length === 0) {
+    return DEFAULT_MYSERVER_LEVEL;
   }
-  return DEFAULT_MYSERVER_LEVEL;
+
+  const maxServerLevel = purchasedServers.reduce((previousLevel, server) => {
+    const serverMaxRam = ns.getServerMaxRam(server);
+    const serverLevel = Math.log(serverMaxRam) / Math.log(2);
+    return serverLevel >= previousLevel ? serverLevel : previousLevel;
+  }, DEFAULT_MYSERVER_LEVEL);
+
+  const areAllServerMaxedOut = purchasedServers.every((server: string) => {
+    const serverMaxRam = ns.getServerMaxRam(server);
+    const serverLevel = Math.log(serverMaxRam) / Math.log(2);
+    return serverLevel === maxServerLevel;
+  });
+
+  if (purchasedServers.length === purchaseServerLimit && areAllServerMaxedOut) {
+    return maxServerLevel + 1;
+  } else {
+    return maxServerLevel;
+  }
 }
 
 function getNextServerCost(ns: NS, nextServerLevel: number) {

@@ -1,24 +1,18 @@
-import { tPrint } from '/util';
+import { log } from '/util/log';
 /** @param {NS} ns */
 export async function main(ns) {
-    const timer = (ns.args[0] || 5000);
-    const silent = (ns.args[1] || false);
-    const currentNodeCount = ns.hacknet.numNodes();
-    if (currentNodeCount < 1) {
-        ns.hacknet.purchaseNode();
-    }
-    else {
-        while (true) {
-            await ns.sleep(timer);
-            autoUpgradeHacknet(ns, silent);
-        }
+    const timer = (ns.args[0] || 1000);
+    const debug = (ns.args[1] || false);
+    while (true) {
+        await ns.sleep(timer);
+        autoUpgradeHacknet(ns, debug);
     }
 }
 /**
  * @param {NS} ns
- * @param silent
+ * @param debug
  */
-function autoUpgradeHacknet(ns, silent = false) {
+function autoUpgradeHacknet(ns, debug = false) {
     const currentMoney = ns.getPlayer().money;
     const currentNodeCount = ns.hacknet.numNodes();
     const newNodeCost = ns.hacknet.getPurchaseNodeCost();
@@ -29,14 +23,15 @@ function autoUpgradeHacknet(ns, silent = false) {
         currentMoney < leastExpensiveLevel.cost &&
         currentMoney < leastExpensiveRAM.cost &&
         currentMoney < leastExpensiveCore.cost) {
-        tPrint(ns, 'No enough money to upgrade hacknet!', silent);
+        log(ns, 'No enough money to upgrade hacknet!', debug);
         return;
     }
-    if (newNodeCost < currentMoney &&
-        newNodeCost < leastExpensiveLevel.cost &&
-        newNodeCost < leastExpensiveRAM.cost &&
-        newNodeCost < leastExpensiveCore.cost) {
-        tPrint(ns, 'Buying new hacknet node.', silent);
+    if (currentNodeCount < 1 ||
+        (newNodeCost < currentMoney &&
+            newNodeCost < leastExpensiveLevel.cost &&
+            newNodeCost < leastExpensiveRAM.cost &&
+            newNodeCost < leastExpensiveCore.cost)) {
+        log(ns, 'Buying new hacknet node.', debug);
         ns.hacknet.purchaseNode();
         return;
     }
@@ -44,7 +39,7 @@ function autoUpgradeHacknet(ns, silent = false) {
         leastExpensiveCore.cost < newNodeCost &&
         leastExpensiveCore.cost < leastExpensiveLevel.cost &&
         leastExpensiveCore.cost < leastExpensiveRAM.cost) {
-        tPrint(ns, `Upgrading CORE for node: ${leastExpensiveCore.index}.`, silent);
+        log(ns, `Upgrading CORE for node: ${leastExpensiveCore.index}.`, debug);
         ns.hacknet.upgradeCore(leastExpensiveCore.index, 1);
         return;
     }
@@ -52,7 +47,7 @@ function autoUpgradeHacknet(ns, silent = false) {
         leastExpensiveRAM.cost < newNodeCost &&
         leastExpensiveRAM.cost < leastExpensiveLevel.cost &&
         leastExpensiveRAM.cost < leastExpensiveCore.cost) {
-        tPrint(ns, `Upgrading RAM for node: ${leastExpensiveRAM.index}.`, silent);
+        log(ns, `Upgrading RAM for node: ${leastExpensiveRAM.index}.`, debug);
         ns.hacknet.upgradeRam(leastExpensiveRAM.index, 1);
         return;
     }
@@ -60,7 +55,7 @@ function autoUpgradeHacknet(ns, silent = false) {
         leastExpensiveLevel.cost < newNodeCost &&
         leastExpensiveLevel.cost < leastExpensiveRAM.cost &&
         leastExpensiveLevel.cost < leastExpensiveCore.cost) {
-        tPrint(ns, `Upgrading LEVEL for node: ${leastExpensiveLevel.index}.`, silent);
+        log(ns, `Upgrading LEVEL for node: ${leastExpensiveLevel.index}.`, debug);
         ns.hacknet.upgradeLevel(leastExpensiveLevel.index, 1);
         return;
     }

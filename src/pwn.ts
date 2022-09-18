@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 
-import { log, logSeparator } from '/util';
+import { log, logSeparator } from '/util/log';
 import { hackAll } from '/hack/hack-all';
 import { installMalwareAll } from '/malware/install-malware-all';
 
