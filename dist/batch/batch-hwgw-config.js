@@ -117,6 +117,6 @@ function calculateBatchHWGWConfig(ns, serverName, hackRatio = 0.9) {
     return {
         batches: batchConfig,
         hackRatio,
-        hackAmount,
+        hackAmount: hackAmount * batchConfig.length,
     };
 }
