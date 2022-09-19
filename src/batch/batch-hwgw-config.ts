@@ -42,7 +42,7 @@ export interface BatchHWGWConfig {
 export function getBatchHWGWConfig(ns: NS, serverName: string): BatchHWGWConfig | null {
   const batchConfigs: Array<BatchHWGWConfig> = [];
 
-  for (let i = 0.9; i >= 0.1; i - 0.1) {
+  for (let i = 0.9; i >= 0.1; i -= 0.1) {
     const config = calculateBatchHWGWConfig(ns, serverName, i);
     if (config) {
       batchConfigs.push(config);

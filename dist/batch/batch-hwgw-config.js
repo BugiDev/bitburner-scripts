@@ -19,7 +19,7 @@ function getServerMaxBatches(ns, serverName) {
 }
 export function getBatchHWGWConfig(ns, serverName) {
     const batchConfigs = [];
-    for (let i = 0.9; i >= 0.1; i - 0.1) {
+    for (let i = 0.9; i >= 0.1; i -= 0.1) {
         const config = calculateBatchHWGWConfig(ns, serverName, i);
         if (config) {
             batchConfigs.push(config);
