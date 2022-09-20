@@ -3,6 +3,7 @@ import { bold, boldRed, formatMoney, log, logSeparator, red } from '/util/log';
 import { CONFIG } from '/config';
 import { validateServerName } from '/util/validation';
 import { getBatchHWGWConfig } from '/batch/batch-hwgw-config';
+import { getNetworkFreeThreadCount } from '/util/thread';
 
 export function autocomplete(data: AutocompleteData) {
   return [...data.servers]; // This script autocompletes the list of servers.
@@ -55,7 +56,8 @@ export async function main(ns: NS) {
   log(ns, `Server hack chance: ${hackChance}`, true);
   logSeparator(ns, true);
 
-  const batchHWGWConfig = getBatchHWGWConfig(ns, serverName);
+  const freeNetworkThreads = getNetworkFreeThreadCount(ns);
+  const batchHWGWConfig = getBatchHWGWConfig(ns, serverName, freeNetworkThreads);
   if (batchHWGWConfig) {
     const cycleUsableTime = weakenTime - CONFIG.timeStep;
     const maxExecutableBatches = batchHWGWConfig?.batches?.length;

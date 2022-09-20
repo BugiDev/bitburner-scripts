@@ -1,7 +1,7 @@
 import { AutocompleteData, NS } from '@ns';
 import { bold, boldRed, formatMoney, log, logSeparator, red } from '/util/log';
 import { maxOutServer } from '/util/server';
-import { getNetworkMaxThreadCount } from '/util/thread';
+import { getNetworkFreeThreadCount, getNetworkMaxThreadCount } from '/util/thread';
 import { executeGrowScript, executeHackScript, executeWeakScript } from '/util/remote-exec';
 import { hasFormulas } from '/util/home';
 import { CONFIG } from '/config';
@@ -34,7 +34,8 @@ export async function main(ns: NS) {
 
   await maxOutServer(ns, serverName, debug);
 
-  const batchHWGWConfig = getBatchHWGWConfig(ns, serverName);
+  const freeNetworkThreads = getNetworkFreeThreadCount(ns);
+  const batchHWGWConfig = getBatchHWGWConfig(ns, serverName, freeNetworkThreads);
 
   if (!batchHWGWConfig) {
     log(ns, red(`Can not batch hack ${serverName}!`), debug);

@@ -1,7 +1,7 @@
 import { NS } from '@ns';
 import { CONFIG } from '/config';
 import { log } from '/util/log';
-import { getNetworkFreeThreadCount } from '/util/thread';
+import { getNetworkFreeThreadCount, ThreadCount } from '/util/thread';
 import { validateServerName } from '/util/validation';
 
 /** @param {NS} ns
@@ -11,7 +11,8 @@ export async function main(ns: NS) {
   const serverName = ns.args[0] as string;
   validateServerName(serverName);
 
-  const config = getBatchHWGWConfig(ns, serverName);
+  const freeNetworkThreads = getNetworkFreeThreadCount(ns);
+  const config = getBatchHWGWConfig(ns, serverName, freeNetworkThreads);
   log(ns, 'Batch HWGW config', true);
   log(ns, `${JSON.stringify(config)}`, true);
 }
@@ -37,13 +38,27 @@ export interface BatchHWGWConfig {
   batches: SingleBatchHWGWConfig[];
   hackAmount: number;
   hackRatio: number;
+  networkThreads: ThreadCount;
 }
 
-export function getBatchHWGWConfig(ns: NS, serverName: string): BatchHWGWConfig | null {
+export function getBatchHWGWConfig(
+  ns: NS,
+  serverName: string,
+  freeNetworkThreads: ThreadCount
+): BatchHWGWConfig | null {
   const batchConfigs: Array<BatchHWGWConfig> = [];
+  const maxBatches = getServerMaxBatches(ns, serverName);
+  const serverMaxMoney = ns.getServerMaxMoney(serverName);
 
-  for (let i = 0.9; i >= 0.1; i -= 0.1) {
-    const config = calculateBatchHWGWConfig(ns, serverName, i);
+  for (let i = 1; i <= 9; i++) {
+    const config = calculateBatchHWGWConfig(
+      ns,
+      freeNetworkThreads,
+      serverName,
+      maxBatches,
+      serverMaxMoney,
+      i * 0.1
+    );
     if (config) {
       batchConfigs.push(config);
     }
@@ -64,12 +79,16 @@ export function getBatchHWGWConfig(ns: NS, serverName: string): BatchHWGWConfig 
   );
 }
 
-function calculateBatchHWGWConfig(ns: NS, serverName: string, hackRatio = 0.9) {
-  const maxBatches = getServerMaxBatches(ns, serverName);
-
-  const serverMaxMoney = ns.getServerMaxMoney(serverName);
-
-  const hackAmount = serverMaxMoney * hackRatio;
+function calculateBatchHWGWConfig(
+  ns: NS,
+  freeNetworkThreads: ThreadCount,
+  serverName: string,
+  maxBatches: number,
+  maxMoney: number,
+  hackRatio: number
+) {
+  const freeThreadsClone = _.cloneDeep(freeNetworkThreads);
+  const hackAmount = maxMoney * hackRatio;
   const threadsToHack = Math.floor(ns.hackAnalyzeThreads(serverName, hackAmount)) || 1;
 
   const securityIncreaseForHack = ns.hackAnalyzeSecurity(threadsToHack, serverName);
@@ -77,13 +96,11 @@ function calculateBatchHWGWConfig(ns: NS, serverName: string, hackRatio = 0.9) {
   const weakenThreadsNeededForHack = Math.ceil(securityIncreaseForHack / weakenAnalyze);
 
   const threadsToGrow = Math.ceil(
-    ns.growthAnalyze(serverName, Math.ceil(serverMaxMoney / (serverMaxMoney - hackAmount)))
+    ns.growthAnalyze(serverName, Math.ceil(maxMoney / (maxMoney - hackAmount)))
   );
 
   const securityIncreaseForGrow = ns.growthAnalyzeSecurity(threadsToGrow);
   const weakenThreadsNeededForGrow = Math.ceil(securityIncreaseForGrow / weakenAnalyze);
-
-  const freeNetworkThreads = getNetworkFreeThreadCount(ns);
 
   //BATCH ITERATION
 
@@ -91,13 +108,11 @@ function calculateBatchHWGWConfig(ns: NS, serverName: string, hackRatio = 0.9) {
   for (let b = 0; b < maxBatches; b++) {
     // Early return no free threads in total, no need to check individual threads
     if (
-      freeNetworkThreads.total <
+      freeThreadsClone.total <
       threadsToHack + threadsToGrow + weakenThreadsNeededForGrow + weakenThreadsNeededForHack
     ) {
       break;
     }
-
-    // const entries = Object.entries(freeNetworkThreads.threads);
 
     let hackServer: string | null = null;
     let growServer: string | null = null;
@@ -105,43 +120,41 @@ function calculateBatchHWGWConfig(ns: NS, serverName: string, hackRatio = 0.9) {
     let weakGrowServer: string | null = null;
 
     // Check if enough hacking threads
-    for (const key in freeNetworkThreads.threads) {
-      if (freeNetworkThreads.threads[key] >= threadsToHack) {
+    for (const key in freeThreadsClone.threads) {
+      if (freeThreadsClone.threads[key] >= threadsToHack) {
         hackServer = key;
-        freeNetworkThreads.threads[key] = freeNetworkThreads.threads[key] - threadsToHack;
-        freeNetworkThreads.total -= threadsToHack;
+        freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - threadsToHack;
+        freeThreadsClone.total -= threadsToHack;
         break;
       }
     }
 
     // Check if enough grow threads
-    for (const key in freeNetworkThreads.threads) {
-      if (freeNetworkThreads.threads[key] >= threadsToGrow) {
+    for (const key in freeThreadsClone.threads) {
+      if (freeThreadsClone.threads[key] >= threadsToGrow) {
         growServer = key;
-        freeNetworkThreads.threads[key] = freeNetworkThreads.threads[key] - threadsToGrow;
-        freeNetworkThreads.total -= threadsToGrow;
+        freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - threadsToGrow;
+        freeThreadsClone.total -= threadsToGrow;
         break;
       }
     }
 
     // Check if enough threads for weaken after hack
-    for (const key in freeNetworkThreads.threads) {
-      if (freeNetworkThreads.threads[key] >= weakenThreadsNeededForHack) {
+    for (const key in freeThreadsClone.threads) {
+      if (freeThreadsClone.threads[key] >= weakenThreadsNeededForHack) {
         weakHackServer = key;
-        freeNetworkThreads.threads[key] =
-          freeNetworkThreads.threads[key] - weakenThreadsNeededForHack;
-        freeNetworkThreads.total -= weakenThreadsNeededForHack;
+        freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - weakenThreadsNeededForHack;
+        freeThreadsClone.total -= weakenThreadsNeededForHack;
         break;
       }
     }
 
     // Check if enough threads for weaken after grow
-    for (const key in freeNetworkThreads.threads) {
-      if (freeNetworkThreads.threads[key] >= weakenThreadsNeededForGrow) {
+    for (const key in freeThreadsClone.threads) {
+      if (freeThreadsClone.threads[key] >= weakenThreadsNeededForGrow) {
         weakGrowServer = key;
-        freeNetworkThreads.threads[key] =
-          freeNetworkThreads.threads[key] - weakenThreadsNeededForGrow;
-        freeNetworkThreads.total -= weakenThreadsNeededForGrow;
+        freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - weakenThreadsNeededForGrow;
+        freeThreadsClone.total -= weakenThreadsNeededForGrow;
         break;
       }
     }
@@ -168,5 +181,6 @@ function calculateBatchHWGWConfig(ns: NS, serverName: string, hackRatio = 0.9) {
     batches: batchConfig,
     hackRatio,
     hackAmount: hackAmount * batchConfig.length,
+    networkThreads: freeThreadsClone,
   };
 }
