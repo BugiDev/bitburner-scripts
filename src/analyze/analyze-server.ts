@@ -65,7 +65,8 @@ export async function main(ns: NS) {
       maxExecutableBatches > 1
         ? (cycleUsableTime + CONFIG.timeStep * 3 * maxExecutableBatches) / 1000
         : (cycleUsableTime + CONFIG.timeStep * 4) / 1000;
-    const maxMoneyPerSecond = (serverMaxMoney / 2 / totalCycleTime) * maxExecutableBatches;
+    const maxMoneyPerSecond =
+      ((serverMaxMoney * batchHWGWConfig.hackRatio) / totalCycleTime) * maxExecutableBatches;
     log(ns, bold(`Max executable batches: ${maxExecutableBatches}`), true);
     log(ns, bold(`Max money per second: ${formatMoney(ns, maxMoneyPerSecond)}`), true);
     log(ns, bold(`Hack ratio: ${batchHWGWConfig.hackRatio}`), true);
