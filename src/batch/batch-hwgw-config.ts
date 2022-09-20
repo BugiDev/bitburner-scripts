@@ -114,52 +114,34 @@ function calculateBatchHWGWConfig(
       break;
     }
 
-    let hackServer: string | null = null;
-    let growServer: string | null = null;
-    let weakHackServer: string | null = null;
-    let weakGrowServer: string | null = null;
+    const hackServer =
+      _.findKey(freeThreadsClone.threads, (threadCount: number) => threadCount >= threadsToHack) ||
+      null;
 
-    // Check if enough hacking threads
-    for (const key in freeThreadsClone.threads) {
-      if (freeThreadsClone.threads[key] >= threadsToHack) {
-        hackServer = key;
-        freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - threadsToHack;
-        freeThreadsClone.total -= threadsToHack;
-        break;
-      }
-    }
+    const growServer =
+      _.findKey(freeThreadsClone.threads, (threadCount: number) => threadCount >= threadsToGrow) ||
+      null;
 
-    // Check if enough grow threads
-    for (const key in freeThreadsClone.threads) {
-      if (freeThreadsClone.threads[key] >= threadsToGrow) {
-        growServer = key;
-        freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - threadsToGrow;
-        freeThreadsClone.total -= threadsToGrow;
-        break;
-      }
-    }
+    const weakHackServer =
+      _.findKey(
+        freeThreadsClone.threads,
+        (threadCount: number) => threadCount >= weakenThreadsNeededForHack
+      ) || null;
 
-    // Check if enough threads for weaken after hack
-    for (const key in freeThreadsClone.threads) {
-      if (freeThreadsClone.threads[key] >= weakenThreadsNeededForHack) {
-        weakHackServer = key;
-        freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - weakenThreadsNeededForHack;
-        freeThreadsClone.total -= weakenThreadsNeededForHack;
-        break;
-      }
-    }
-
-    // Check if enough threads for weaken after grow
-    for (const key in freeThreadsClone.threads) {
-      if (freeThreadsClone.threads[key] >= weakenThreadsNeededForGrow) {
-        weakGrowServer = key;
-        freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - weakenThreadsNeededForGrow;
-        freeThreadsClone.total -= weakenThreadsNeededForGrow;
-        break;
-      }
-    }
+    const weakGrowServer =
+      _.findKey(
+        freeThreadsClone.threads,
+        (threadCount: number) => threadCount >= weakenThreadsNeededForGrow
+      ) || null;
 
     if (hackServer && growServer && weakHackServer && weakGrowServer) {
+      freeThreadsClone.threads[hackServer] -= threadsToHack;
+      freeThreadsClone.threads[growServer] -= threadsToHack;
+      freeThreadsClone.threads[weakHackServer] -= threadsToHack;
+      freeThreadsClone.threads[weakGrowServer] -= threadsToHack;
+      freeThreadsClone.total -=
+        threadsToHack + threadsToGrow + weakenThreadsNeededForHack + weakenThreadsNeededForGrow;
+
       batchConfig.push({
         hackServer,
         threadsToHack,
