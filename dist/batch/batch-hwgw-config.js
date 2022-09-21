@@ -62,13 +62,11 @@ function calculateBatchHWGWConfig(ns, freeNetworkThreads, serverName, maxBatches
             null;
         const weakHackServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= weakenThreadsNeededForHack) || null;
         const weakGrowServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= weakenThreadsNeededForGrow) || null;
-        // freeThreadsClone.threads[key] = freeThreadsClone.threads[key] - threadsToHack;
-        // freeThreadsClone.total -= threadsToHack;
         if (hackServer && growServer && weakHackServer && weakGrowServer) {
             freeThreadsClone.threads[hackServer] -= threadsToHack;
-            freeThreadsClone.threads[growServer] -= threadsToHack;
-            freeThreadsClone.threads[weakHackServer] -= threadsToHack;
-            freeThreadsClone.threads[weakGrowServer] -= threadsToHack;
+            freeThreadsClone.threads[growServer] -= threadsToGrow;
+            freeThreadsClone.threads[weakHackServer] -= weakenThreadsNeededForHack;
+            freeThreadsClone.threads[weakGrowServer] -= weakenThreadsNeededForGrow;
             freeThreadsClone.total -=
                 threadsToHack + threadsToGrow + weakenThreadsNeededForHack + weakenThreadsNeededForGrow;
             batchConfig.push({

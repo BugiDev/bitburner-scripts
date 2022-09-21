@@ -136,9 +136,9 @@ function calculateBatchHWGWConfig(
 
     if (hackServer && growServer && weakHackServer && weakGrowServer) {
       freeThreadsClone.threads[hackServer] -= threadsToHack;
-      freeThreadsClone.threads[growServer] -= threadsToHack;
-      freeThreadsClone.threads[weakHackServer] -= threadsToHack;
-      freeThreadsClone.threads[weakGrowServer] -= threadsToHack;
+      freeThreadsClone.threads[growServer] -= threadsToGrow;
+      freeThreadsClone.threads[weakHackServer] -= weakenThreadsNeededForHack;
+      freeThreadsClone.threads[weakGrowServer] -= weakenThreadsNeededForGrow;
       freeThreadsClone.total -=
         threadsToHack + threadsToGrow + weakenThreadsNeededForHack + weakenThreadsNeededForGrow;
 
