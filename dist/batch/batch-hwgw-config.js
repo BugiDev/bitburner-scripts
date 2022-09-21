@@ -50,35 +50,15 @@ function calculateBatchHWGWConfig(ns, freeNetworkThreads, serverName, maxBatches
     const weakenThreadsNeededForGrow = Math.ceil(securityIncreaseForGrow / weakenAnalyze);
     //BATCH ITERATION
     const batchConfig = [];
+    let threadCount = freeNetworkThreads;
     for (let b = 0; b < maxBatches; b++) {
-        // Early return no free threads in total, no need to check individual threads
-        if (freeThreadsClone.total <
-            threadsToHack + threadsToGrow + weakenThreadsNeededForGrow + weakenThreadsNeededForHack) {
-            break;
+        const singleBatchConfig = calculateSingleBatchConfig(threadCount, threadsToHack, threadsToGrow, weakenThreadsNeededForHack, weakenThreadsNeededForGrow);
+        if (singleBatchConfig) {
+            batchConfig.push(singleBatchConfig.config);
+            threadCount = singleBatchConfig.threadCount;
         }
-        const hackServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= threadsToHack) ||
-            null;
-        const growServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= threadsToGrow) ||
-            null;
-        const weakHackServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= weakenThreadsNeededForHack) || null;
-        const weakGrowServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= weakenThreadsNeededForGrow) || null;
-        if (hackServer && growServer && weakHackServer && weakGrowServer) {
-            freeThreadsClone.threads[hackServer] -= threadsToHack;
-            freeThreadsClone.threads[growServer] -= threadsToGrow;
-            freeThreadsClone.threads[weakHackServer] -= weakenThreadsNeededForHack;
-            freeThreadsClone.threads[weakGrowServer] -= weakenThreadsNeededForGrow;
-            freeThreadsClone.total -=
-                threadsToHack + threadsToGrow + weakenThreadsNeededForHack + weakenThreadsNeededForGrow;
-            batchConfig.push({
-                hackServer,
-                threadsToHack,
-                growServer,
-                threadsToGrow,
-                weakHackServer,
-                weakenThreadsNeededForHack,
-                weakGrowServer,
-                weakenThreadsNeededForGrow,
-            });
+        else {
+            break;
         }
     }
     if (batchConfig.length === 0) {
@@ -90,4 +70,48 @@ function calculateBatchHWGWConfig(ns, freeNetworkThreads, serverName, maxBatches
         hackAmount: hackAmount * batchConfig.length,
         networkThreads: freeThreadsClone,
     };
+}
+function calculateSingleBatchConfig(freeNetworkThreads, threadsToHack, threadsToGrow, weakenThreadsNeededForGrow, weakenThreadsNeededForHack) {
+    const freeThreadsClone = _.cloneDeep(freeNetworkThreads);
+    // Early return no free threads in total, no need to check individual threads
+    if (freeThreadsClone.total <
+        threadsToHack + threadsToGrow + weakenThreadsNeededForGrow + weakenThreadsNeededForHack) {
+        return null;
+    }
+    const hackServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= threadsToHack) ||
+        null;
+    if (hackServer) {
+        freeThreadsClone.threads[hackServer] -= threadsToHack;
+    }
+    const growServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= threadsToGrow) ||
+        null;
+    if (growServer) {
+        freeThreadsClone.threads[growServer] -= threadsToGrow;
+    }
+    const weakHackServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= weakenThreadsNeededForHack) || null;
+    if (weakHackServer) {
+        freeThreadsClone.threads[weakHackServer] -= weakenThreadsNeededForHack;
+    }
+    const weakGrowServer = _.findKey(freeThreadsClone.threads, (threadCount) => threadCount >= weakenThreadsNeededForGrow) || null;
+    if (weakGrowServer) {
+        freeThreadsClone.threads[weakGrowServer] -= weakenThreadsNeededForGrow;
+    }
+    if (hackServer && growServer && weakHackServer && weakGrowServer) {
+        freeThreadsClone.total -=
+            threadsToHack + threadsToGrow + weakenThreadsNeededForHack + weakenThreadsNeededForGrow;
+        return {
+            threadCount: freeThreadsClone,
+            config: {
+                hackServer,
+                threadsToHack,
+                growServer,
+                threadsToGrow,
+                weakHackServer,
+                weakenThreadsNeededForHack,
+                weakGrowServer,
+                weakenThreadsNeededForGrow,
+            },
+        };
+    }
+    return null;
 }
